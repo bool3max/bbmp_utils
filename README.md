@@ -13,9 +13,9 @@ Right now it includes:
 
 **TODO**: 
 
-* extender the parser with funtionality for easily modifying metadata of existing BMP files
+* extend the parser with funtionality for easily modifying metadata of existing BMP files
 * optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)
-* extend the build system to support more edge/use cases
+* extend the build system to support more edge/use cases and installation
 
 ---
 
