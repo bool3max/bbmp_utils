@@ -1,7 +1,7 @@
 /* A helper API for abstracting work with BMP image data. */
 
-#include "./bbmp_parser.h"
-#include "./bbmp_helper.h"
+#include "bbmp_parser.h"
+#include "bbmp_helper.h"
 
 #include <stdio.h>
 #include <stdint.h>

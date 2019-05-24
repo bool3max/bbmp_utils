@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "./bbmp_parser.h"
+#include "bbmp_parser.h"
 
 /*  A header-only file composed of a few functions for parsing data and metadata from BMP4.0 files.
     Only supports the `BM` BITMAPINFOHEADER DIB structure.
@@ -38,7 +38,6 @@ bool ParseBmpMetadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata)
     /* Reads BMP file metadata from the memory pointed to by memloc. memloc must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
     Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
     */
-
     if(!metadata_buffer || !metadata) return false;
 
     #define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
