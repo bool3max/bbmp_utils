@@ -2,7 +2,7 @@
 
 `bbmp_utils` is a native library for working with BMP files.
 
-It is written in POSIX C11 and has only been tested on Linux.
+It is written in POSIX C11 and has only been tested on `amd64` and linux 5.1, though I see no reason why it shouldn't work on other architectures and/or POSIX systems (cross-compilation isn't yet supported by the build system but host-compilation should work).
 
 ---
 
@@ -15,12 +15,16 @@ Right now it includes:
 
 * extender the parser with funtionality for easily modifying metadata of existing BMP files
 * optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)
+* extend the build system to support more edge/use cases
 
 ---
 
 ## Development
 
-The build system is `meson` with the `ninja` backend. I'm tired of using Make and writing Makefiles.
+Development is done using `meson` with the `ninja` backend.
+
+1. Run `$ meson setup build`
+2. Run `$ ninja -C build` to produce a debug-build static library in the `build` directory
 
 ---
 
