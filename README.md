@@ -25,6 +25,9 @@ Development is done using `meson` with the `ninja` backend.
 
 1. Run `$ meson setup build`
 2. Run `$ ninja -C build` to produce a debug-build static library in the `build` directory
+3. Run `$ ninja -C build install` to install the static library and the header files (default prefix is `/usr/local/`)
+
+You could also combine steps 2. and 3. to build and install at once: `$ ninja -C build install`.
 
 ---
 
