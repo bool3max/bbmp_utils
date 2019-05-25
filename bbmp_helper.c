@@ -9,11 +9,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-PixelArrayRaw GetRawBmpPixelArray(FILE *bmp_stream, struct Bmp_Info *metadata, bool strip) {
-    /* Allocates enough memory on the heap for the entire raw pixelarray of the bmp file, fills it, and returns a
-    pointer to the memory. Size allocated will be equal to metadata.pixelarray_size. Does not write to 
-    stream. Does not offset stream. The caller is responsible for manipulating and freeing the memory
-    allocated and returned by this function. Returns a NULL ptr on failure.
+PixelArrayRaw bbmp_get_raw_pixelarray_file(FILE *bmp_stream, struct Bmp_Info *metadata, bool strip) {
+    /* 
+        Allocates enough memory on the heap for the entire raw pixelarray of the bmp file, fills it, and returns a
+        pointer to the memory. Size allocated will be equal to metadata.pixelarray_size. Does not write to 
+        stream. Does not offset stream. The caller is responsible for manipulating and freeing the memory
+        allocated and returned by this function. Returns a NULL ptr on failure.
     */
 
     if(bmp_stream == NULL || metadata == NULL) {
@@ -43,7 +44,7 @@ PixelArrayRaw GetRawBmpPixelArray(FILE *bmp_stream, struct Bmp_Info *metadata, b
     }
 
     if(strip) {
-        pixelarray_buffer = StripRawPixelArray(pixelarray_buffer, metadata);
+        pixelarray_buffer = bbmp_strip_raw_pixelarray(pixelarray_buffer, metadata);
     }
 
     //seek stream back to original position
@@ -51,7 +52,7 @@ PixelArrayRaw GetRawBmpPixelArray(FILE *bmp_stream, struct Bmp_Info *metadata, b
     return pixelarray_buffer;
 }
 
-PixelArrayRaw StripRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *metadata) {
+PixelArrayRaw bbmp_strip_raw_pixelarray(PixelArrayRaw pixarray, struct Bmp_Info *metadata) {
     /* Strip all null bytes from the pixelarray pointed to by pixarray, allowing for much easier parsing */
     size_t newsize = metadata->pixelarray_size_np;
 
@@ -70,7 +71,7 @@ PixelArrayRaw StripRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *metada
     return pixarray;
 }
 
-PixelArrayRaw AppendNullRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *metadata) {
+PixelArrayRaw bbmp_appendpadding_raw_pixelarray(PixelArrayRaw pixarray, struct Bmp_Info *metadata) {
     /* Append null padding bytes to end of each row of `pixarray`. Dynamically calculates number of needed null padding bytes
     based on width and depth of the image, (so that I can use it later when I make a text BMP export format).
     Assumes that pixarray is already stripped of all null padding bytes.
@@ -109,7 +110,7 @@ PixelArrayRaw AppendNullRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *m
     return pixarray;
 }
 
-void DebugRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *metadata, bool stripped) {
+void bbmp_debug_raw_pixelarray(PixelArrayRaw pixarray, struct Bmp_Info *metadata, bool stripped) {
     /* Print bytes of pixelarray pointed to by pixarray byte by byte, in groups of 3, to stdout.
     Also prints null padding bytes, if there are any.
     */
@@ -124,7 +125,7 @@ void DebugRawPixelArray(PixelArrayRaw pixarray, struct Bmp_Info *metadata, bool 
     printf("\n");
 }
 
-Pixel *ParseRawPixelArray(PixelArrayRaw raw, struct Bmp_Info *metadata) {
+Pixel *bbmp_parse_raw_pixelarray(PixelArrayRaw raw, struct Bmp_Info *metadata) {
     /* Parse a raw (STRIPPED) pixelarray, and return an array (a ptr..) of `Pixel` structs. Does not modify the raw pixel array in any way.
     The caller is responsible for freeing the allocated memory of the returned array (pointer..). The function assumes that the 
     passed `raw` PixelArray is already null-stripped. If it isn't, the function is likely to return an incorrect representation of the 
@@ -145,7 +146,7 @@ Pixel *ParseRawPixelArray(PixelArrayRaw raw, struct Bmp_Info *metadata) {
     return parsed;
 }
 
-void DebugParsedPixelArray(Pixel *parsed, struct Bmp_Info *metadata) {
+void bbmp_debug_parsed_pixelarray(Pixel *parsed, struct Bmp_Info *metadata) {
     /* Print a parsed pixelarray byte by byte. */
 
     printf("bmphelper: ");

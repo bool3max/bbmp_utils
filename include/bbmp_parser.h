@@ -30,9 +30,9 @@ struct Bmp_Info {
     uint32_t resolution; //the total number of pixels in the pixelarray (width * height)
     uint32_t padding; //the number of 0x00 padding bytes at the end of each row, may be zero
     uint32_t pixelarray_size_np; //the total size of the pixelarray in bytes, excluding all null padding bytes
-}; typedef struct Bmp_Info bmpinfo;
+};
 
 
-bool ParseBmpMetadata(unsigned char *metadata_buffer, struct Bmp_Info *location); 
-bool ParseBmpMetadata_f(FILE *bmp_stream, struct Bmp_Info *location);
-void DbgBmpMetadata(const struct Bmp_Info *dbgtemp); 
+bool bbmp_parse_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *location); 
+bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *location);
+void bbmp_debug_bmp_metadata(const struct Bmp_Info *dbgtemp); 

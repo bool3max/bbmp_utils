@@ -34,9 +34,10 @@ enum BSP_OFFSET {
     BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
 };
 
-bool ParseBmpMetadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata) {
-    /* Reads BMP file metadata from the memory pointed to by memloc. memloc must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
-    Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
+bool bbmp_parse_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata) {
+    /* 
+        Reads BMP file metadata from the memory pointed to by metadata_buffer. metadata_buffer must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
+        Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
     */
     if(!metadata_buffer || !metadata) return false;
 
@@ -89,7 +90,7 @@ bool ParseBmpMetadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata)
     return true;
 }
 
-bool ParseBmpMetadata_f(FILE *bmp_stream, struct Bmp_Info *metadata)  {
+bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata)  {
     /* Reads BMP file metadata from the stream pointed to by bmp_stream. Saves all metadata in the structure pointed to by metadata. Returns true on success, false on failure */
 
     if(!bmp_stream || !metadata) {
@@ -118,7 +119,7 @@ bool ParseBmpMetadata_f(FILE *bmp_stream, struct Bmp_Info *metadata)  {
         return false;
     }
 
-    if(!ParseBmpMetadata((unsigned char *) metadata_buffer, metadata)) {
+    if(!bbmp_parse_bmp_metadata((unsigned char *) metadata_buffer, metadata)) {
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         free(metadata_buffer);
         return false;
@@ -130,7 +131,7 @@ bool ParseBmpMetadata_f(FILE *bmp_stream, struct Bmp_Info *metadata)  {
     return true;
 }
 
-void DbgBmpMetadata(const struct Bmp_Info *dbgtemp) {
+void bbmp_debug_bmp_metadata(const struct Bmp_Info *dbgtemp) {
     /* Prints all fields of the metadata storage struct to stdout. Useful for debugging
     All printed in base 10.
     */
