@@ -17,6 +17,7 @@ Right now it includes:
 * [ ] optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)
 * [ ] extend the build system to support more edge/use cases and installation
 * [ ] document the library API
+* [ ] bindings for lua?
 
 ---
 
@@ -24,11 +25,11 @@ Right now it includes:
 
 Development is done using `meson` with the `ninja` backend.
 
-1. Run `$ meson setup build`
-2. Run `$ ninja -C build` to produce a debug-build static library in the `build` directory
-3. Run `$ ninja -C build install` to install the static library and the header files (default prefix is `/usr/local/`)
+1. Run `$ meson setup build_dbg --build-type debug` or `meson setup build_release --build-type release` if you wish to build a release build w/o optimizations or debug symbols
+2. Run `$ ninja -C build_TYPE` to produce a build of a static library in the `build_...` directory
+3. Run `$ ninja -C build_TYPE install` to install the static library and the header files (default prefix is `/usr/local/`)
 
-You could also combine steps 2. and 3. to build and install at once: `$ ninja -C build install`.
+You could also combine steps 2. and 3. to build and install at once: `$ ninja -C build_TYPE install`.
 
 ---
 

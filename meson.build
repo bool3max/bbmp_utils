@@ -1,4 +1,5 @@
-project('bbmp_utils', 'c')
+project('bbmp_utils', 'c', 
+        default_options: ['c_std=c11'])
 
 sources = ['bbmp_parser.c', 'bbmp_helper.c']
 
