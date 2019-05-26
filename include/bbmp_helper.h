@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bbmp_parser.h"
+
 typedef uint8_t* PixelArrayRaw; //data type used to point to an in-memory raw binary array of pixels, rows may or may not be null padded
 
 typedef struct Pixel_t {

@@ -13,11 +13,11 @@ Right now it includes:
 
 **TODO**: 
 
-* [ ] extend the parser with funtionality for easily modifying metadata of existing BMP files
 * [ ] optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)
-* [ ] extend the build system to support more edge/use cases and installation
 * [ ] document the library API
 * [ ] bindings for lua?
+* [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
+* [x] ~~extend the build system to support more edge/use cases and installation~~
 
 ---
 
