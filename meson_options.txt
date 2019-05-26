@@ -1,0 +1,1 @@
+option('build_test', type: 'boolean', value: false, description: 'Also build a test executable written by me to test the library and its API.')

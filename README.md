@@ -25,11 +25,14 @@ Right now it includes:
 
 Development is done using `meson` with the `ninja` backend.
 
-1. Run `$ meson setup build_dbg --build-type debug` or `meson setup build_release --build-type release` if you wish to build a release build w/o optimizations or debug symbols
-2. Run `$ ninja -C build_TYPE` to produce a build of a static library in the `build_...` directory
-3. Run `$ ninja -C build_TYPE install` to install the static library and the header files (default prefix is `/usr/local/`)
+1. Run `$ meson setup build -Dbuild-type=debug` (replace `debug` with `release` if you wish to build a release build w/o debugging symbols and w/ optimizations)
+2. Run `$ ninja -C build` to build the project
+3. Run `$ ninja -C build install` to install the project with the default options
 
-You could also combine steps 2. and 3. to build and install at once: `$ ninja -C build_TYPE install`.
+If you also wish to build the sample application used for the library and the API, also pass `-Dbuild_test=true` to the initial `meson setup ...` command, or run `$ meson configure build -Dbuild_test=true && ninja -C build` if you've already run the setup.
+The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
+
+Note that on linux, standard practice is to never install libraries w/ debugging symbols, so that should be avoided. (e.g. never install a build generated with `meson setup build -Dbuild-type=debug`)
 
 ---
 
