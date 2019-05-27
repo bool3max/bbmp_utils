@@ -27,7 +27,7 @@ Development is done using `meson` with the `ninja` backend.
 
 1. Run `$ meson setup build -Dbuild-type=debug` (replace `debug` with `release` if you wish to build a release build w/o debugging symbols and w/ optimizations)
 2. Run `$ ninja -C build` to build the project
-3. Run `$ ninja -C build install` to install the static library and the header files in the default location.
+3. Run `# ninja -C build install` to install the static library and the header files in the default location.
 
 If you also wish to build the sample application used for the library and the API, also pass `-Dbuild_test=true` to the initial `meson setup ...` command, or run `$ meson configure build -Dbuild_test=true && ninja -C build` if you've already run the setup.
 The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
