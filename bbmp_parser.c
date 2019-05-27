@@ -6,8 +6,9 @@
 
 #include "bbmp_parser.h"
 
-/*  A header-only file composed of a few functions for parsing data and metadata from BMP4.0 files.
-    Only supports the `BM` BITMAPINFOHEADER DIB structure.
+/*  
+ *  A header-only file composed of a few functions for parsing data and metadata from BMP4.0 files.
+ *  Only supports the `BM` BITMAPINFOHEADER DIB structure.
 */
 
 #define HEADER_BYTESIZE (14) //file header size, constant 14 bytes
@@ -175,6 +176,7 @@ bool bbmp_write_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata) {
     /* 
      * Read BMP metadata from the struct pointed to by "metadata" and save it to the FILE stream pointed to by
      * "bmp_stream". The file offset of "bmp_stream" is untouched.
+     * "bmp_stream" must represent a file stream of a valid BMP file.
     */
 
     if(!bmp_stream || !metadata) return false;
