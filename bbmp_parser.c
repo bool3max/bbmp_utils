@@ -13,6 +13,7 @@
 
 #define HEADER_BYTESIZE (14) //file header size, constant 14 bytes
 #define BITMAPINFOHEADER_BYTESIZE (40) //hardcoded because we only support this particular (BM) DIB structure
+#define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
 
 enum BSP_OFFSET {
     //Bitmap File Header (always 14 bytes)
@@ -35,54 +36,52 @@ enum BSP_OFFSET {
     BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
 };
 
-bool bbmp_parse_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata) {
+bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata) {
     /* 
-        Reads BMP file metadata from the memory pointed to by metadata_buffer. metadata_buffer must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
+        Reads BMP file metadata from the memory pointed to by raw_bmp_data. raw_bmp_data must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
         Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
     */
-    if(!metadata_buffer || !metadata) return false;
+    if(!raw_bmp_data || !metadata) return false;
 
-    #define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
-
-    if(* (uint16_t *) (metadata_buffer + BSP_OFF_DIB_IDEN) != BITMAPINFOHEADER_IDENTIFIER) {
+    if(* (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_IDEN) != BITMAPINFOHEADER_IDENTIFIER) {
         printf("bmpparser: Only the BM DIB header structure is supported. Quitting...\n");
         return false;
     }
 
     //--------- begin setting each property of the struct one by one
-    metadata->header_iden[0] = *(metadata_buffer + BSP_OFF_DIB_IDEN);
-    metadata->header_iden[1] = *(metadata_buffer + BSP_OFF_DIB_IDEN + 1);
+    metadata->header_iden[0] = *(raw_bmp_data + BSP_OFF_DIB_IDEN);
+    metadata->header_iden[1] = *(raw_bmp_data + BSP_OFF_DIB_IDEN + 1);
     metadata->header_iden[2] = '\0';
 
-    metadata->filesize = * (uint32_t*) (metadata_buffer + BSP_OFF_FILESIZE);
+    metadata->filesize = * (uint32_t*) (raw_bmp_data + BSP_OFF_FILESIZE);
 
-    metadata->res1 = * (uint16_t *) (metadata_buffer + BSP_OFF_RES1);
-    metadata->res2 = * (uint16_t *) (metadata_buffer + BSP_OFF_RES2);
+    metadata->res1 = * (uint16_t *) (raw_bmp_data + BSP_OFF_RES1);
+    metadata->res2 = * (uint16_t *) (raw_bmp_data + BSP_OFF_RES2);
 
-    metadata->pixelarray_off = * (uint32_t *) (metadata_buffer + BSP_OFF_PIXELARRAY_START);
+    metadata->pixelarray_off = * (uint32_t *) (raw_bmp_data + BSP_OFF_PIXELARRAY_START);
 
-    metadata->dib_size = * (uint32_t *) (metadata_buffer + BSP_OFF_DIB_SIZE);
+    metadata->dib_size = * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_SIZE);
 
-    metadata->pixelarray_width = * (int32_t *) (metadata_buffer + BSP_OFF_DIB_IMGWIDTH);
-    metadata->pixelarray_height = * (int32_t *) (metadata_buffer + BSP_OFF_DIB_IMGHEIGHT);
+    metadata->pixelarray_width = * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGWIDTH);
+    metadata->pixelarray_height = * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGHEIGHT);
 
-    metadata->panes_num = * (uint16_t *) (metadata_buffer + BSP_OFF_DIB_PLANESNUM);
+    metadata->panes_num = * (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_PLANESNUM);
     
-    metadata->bpp = * (uint16_t *) (metadata_buffer + BSP_OFF_DIB_BPP);
+    metadata->bpp = * (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_BPP);
 
-    metadata->compression_method = * (uint32_t *) (metadata_buffer + BSP_OFF_DIB_COMPRESSION);
+    metadata->compression_method = * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COMPRESSION);
 
-    metadata->pixelarray_size = * (uint32_t *) (metadata_buffer + BSP_OFF_DIB_IMGSIZE);
+    metadata->pixelarray_size = * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGSIZE);
 
-    metadata->ppm_horiz = * (int32_t *) (metadata_buffer + BSP_OFF_DIB_PPM_HORIZ);
-    metadata->ppm_vert = * (int32_t *) (metadata_buffer + BSP_OFF_DIB_PPM_VERT);
+    metadata->ppm_horiz = * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_HORIZ);
+    metadata->ppm_vert = * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_VERT);
 
-    metadata->colors_num = * (uint32_t *) (metadata_buffer + BSP_OFF_DIB_COLORSNUM);
-    metadata->colors_important_num = * (uint32_t *) (metadata_buffer + BSP_OFF_DIB_IMPORTANTCOLORSNUM);
+    metadata->colors_num = * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COLORSNUM);
+    metadata->colors_important_num = * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM);
     
     //CUSTOM FIELDS (not in the spec or in the file, provided for ease of use)
-    metadata->Bpr = ceil(( (double) metadata->bpp * metadata->pixelarray_width) / 32) * 4;
     metadata->Bpp = metadata->bpp / 8;
+    metadata->Bpr = ceil(( (double) metadata->bpp * metadata->pixelarray_width) / 32) * 4;
     metadata->Bpr_np = (metadata->pixelarray_width * metadata->Bpp);
     metadata->padding = metadata->Bpr - (metadata->pixelarray_width * metadata->Bpp);
     metadata->resolution = metadata->pixelarray_height * metadata->pixelarray_width;
@@ -110,64 +109,64 @@ bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata)  
     }
 
     // allocate space for metadata
-    char *metadata_buffer = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
-    if(!metadata_buffer) {
+    char *raw_bmp_data = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
+    if(!raw_bmp_data) {
         perror("bmpparser: Error allocating memory: ");
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         return false;
     }
 
     //read all 54 bytes of metadata
-    if(fread(metadata_buffer, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
+    if(fread(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
         perror("bmpparser: Error reading metadata from stream: ");
-        free(metadata_buffer);
+        free(raw_bmp_data);
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         return false;
     }
 
-    if(!bbmp_parse_bmp_metadata((unsigned char *) metadata_buffer, metadata)) {
+    if(!bbmp_parse_bmp_metadata((unsigned char *) raw_bmp_data, metadata)) {
         fseek(bmp_stream, fileoff_before, SEEK_SET);
-        free(metadata_buffer);
+        free(raw_bmp_data);
         return false;
     }
     
     //cleanup
-    free(metadata_buffer);
+    free(raw_bmp_data);
     fseek(bmp_stream, fileoff_before, SEEK_SET);
 
     return true;
 }
 
-bool bbmp_write_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata) {
+bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata) {
     /* 
-        Copy all properties (fields) of the Bmp_Info metadata struct pointed to by "location" to their respective locations inside of the raw metadata memory pointed to by "metadata_buffer"
+        Copy all properties (fields) of the Bmp_Info metadata struct pointed to by "location" to their respective locations inside of the raw metadata memory pointed to by "raw_bmp_data"
     */
 
     // BMP file header
 
-    if(!metadata_buffer || !metadata) return false;
+    if(!raw_bmp_data || !metadata) return false;
 
-    *(metadata_buffer + BSP_OFF_DIB_IDEN) = metadata->header_iden[0];
-    *(metadata_buffer + BSP_OFF_DIB_IDEN + 1) = metadata->header_iden[1];
+    *(raw_bmp_data + BSP_OFF_DIB_IDEN) = metadata->header_iden[0];
+    *(raw_bmp_data + BSP_OFF_DIB_IDEN + 1) = metadata->header_iden[1];
 
-    *(metadata_buffer + BSP_OFF_FILESIZE) = metadata->filesize;
-    *(metadata_buffer + BSP_OFF_RES1) = metadata->res1;
-    *(metadata_buffer + BSP_OFF_RES2) = metadata->res2;
-    *(metadata_buffer + BSP_OFF_PIXELARRAY_START) = metadata->pixelarray_off;
+    *(raw_bmp_data + BSP_OFF_FILESIZE) = metadata->filesize;
+    *(raw_bmp_data + BSP_OFF_RES1) = metadata->res1;
+    *(raw_bmp_data + BSP_OFF_RES2) = metadata->res2;
+    *(raw_bmp_data + BSP_OFF_PIXELARRAY_START) = metadata->pixelarray_off;
 
     // DIB header metadata
 
-    *(metadata_buffer + BSP_OFF_DIB_SIZE) = metadata->dib_size;
-    *(metadata_buffer + BSP_OFF_DIB_IMGWIDTH) = metadata->pixelarray_width;
-    *(metadata_buffer + BSP_OFF_DIB_IMGHEIGHT) = metadata->pixelarray_height;
-    *(metadata_buffer + BSP_OFF_DIB_PLANESNUM) = metadata->panes_num;
-    *(metadata_buffer + BSP_OFF_DIB_BPP) = metadata->bpp;
-    *(metadata_buffer + BSP_OFF_DIB_COMPRESSION) = metadata->compression_method;
-    *(metadata_buffer + BSP_OFF_DIB_IMGSIZE) = metadata->pixelarray_size;
-    *(metadata_buffer + BSP_OFF_DIB_PPM_HORIZ) = metadata->ppm_horiz;
-    *(metadata_buffer + BSP_OFF_DIB_PPM_VERT) = metadata->ppm_vert;
-    *(metadata_buffer + BSP_OFF_DIB_COLORSNUM) = metadata->colors_num;
-    *(metadata_buffer + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = metadata->colors_important_num;
+    *(raw_bmp_data + BSP_OFF_DIB_SIZE) = metadata->dib_size;
+    *(raw_bmp_data + BSP_OFF_DIB_IMGWIDTH) = metadata->pixelarray_width;
+    *(raw_bmp_data + BSP_OFF_DIB_IMGHEIGHT) = metadata->pixelarray_height;
+    *(raw_bmp_data + BSP_OFF_DIB_PLANESNUM) = metadata->panes_num;
+    *(raw_bmp_data + BSP_OFF_DIB_BPP) = metadata->bpp;
+    *(raw_bmp_data + BSP_OFF_DIB_COMPRESSION) = metadata->compression_method;
+    *(raw_bmp_data + BSP_OFF_DIB_IMGSIZE) = metadata->pixelarray_size;
+    *(raw_bmp_data + BSP_OFF_DIB_PPM_HORIZ) = metadata->ppm_horiz;
+    *(raw_bmp_data + BSP_OFF_DIB_PPM_VERT) = metadata->ppm_vert;
+    *(raw_bmp_data + BSP_OFF_DIB_COLORSNUM) = metadata->colors_num;
+    *(raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = metadata->colors_important_num;
 
     return true;
 }
@@ -193,39 +192,39 @@ bool bbmp_write_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata) {
     }
 
     // allocate space for metadata
-    char *metadata_buffer = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
-    if(!metadata_buffer) {
+    char *raw_bmp_data = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
+    if(!raw_bmp_data) {
         perror("bmpparser: Error allocating memory: ");
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         return false;
     }
 
     // read all 54 bytes of metadata
-    if(fread(metadata_buffer, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
+    if(fread(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
         perror("bmpparser: Error reading metadata from stream: ");
-        free(metadata_buffer);
+        free(raw_bmp_data);
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         return false;
     }
 
     // write new metadata to the temporary buffer
-    if(!bbmp_write_bmp_metadata((unsigned char *) metadata_buffer, metadata)) {
+    if(!bbmp_write_bmp_metadata((unsigned char *) raw_bmp_data, metadata)) {
         perror("bmpparser: Error modifying metadata: "); 
         fseek(bmp_stream, fileoff_before, SEEK_SET);
-        free(metadata_buffer);
+        free(raw_bmp_data);
         return false;
     }
 
     //write the (now modified) buffer back to the file
     fseek(bmp_stream, 0, SEEK_SET); //rewind stream back to start
-    if(fwrite(metadata_buffer, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
+    if(fwrite(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
         perror("bmpparser: Error writing metadata buffer back to file: ");
-        free(metadata_buffer);
+        free(raw_bmp_data);
         fseek(bmp_stream, fileoff_before, SEEK_SET);
         return false;
     }
 
-    free(metadata_buffer);
+    free(raw_bmp_data);
     fseek(bmp_stream, fileoff_before, SEEK_SET);
     
     return true;

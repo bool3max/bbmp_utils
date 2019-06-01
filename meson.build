@@ -1,4 +1,4 @@
-project('bbmp_utils', 'c', default_options : ['c_std=c11'])
+project('bbmp_utils', 'c', license: 'MIT', default_options : ['c_std=c11'])
 
 ccompiler = meson.get_compiler('c')
 

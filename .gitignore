@@ -1,3 +1,2 @@
-build/
-build_dbg/
-build_release/
+build*/
+ideas.txt

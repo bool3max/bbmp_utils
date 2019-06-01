@@ -33,8 +33,8 @@ struct Bmp_Info {
 };
 
 
-bool bbmp_parse_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *location); 
+bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *location); 
 bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *location);
-bool bbmp_write_bmp_metadata(unsigned char *metadata_buffer, struct Bmp_Info *metadata);
+bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata);
 bool bbmp_write_bmp_metadata_file(FILE *bmp_steam, struct Bmp_Info *metadata);
 void bbmp_debug_bmp_metadata(const struct Bmp_Info *dbgtemp); 
