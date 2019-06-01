@@ -13,9 +13,9 @@ Right now it includes:
 
 **TODO**: 
 
-* [ ] optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)
 * [ ] document the library API
 * [ ] support for DIB headers other than `BITMAPINFOHEADER` (`"BM"`)
+* [x] ~~optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)~~
 * [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
 * [x] ~~extend the build system to support more edge/use cases and installation~~
 
