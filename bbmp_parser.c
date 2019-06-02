@@ -36,7 +36,7 @@ enum BSP_OFFSET {
     BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
 };
 
-bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata) {
+bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata) {
     /* 
         Reads BMP file metadata from the memory pointed to by raw_bmp_data. raw_bmp_data must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
         Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
@@ -90,56 +90,9 @@ bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metad
     return true;
 }
 
-bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata)  {
-    /* Reads BMP file metadata from the stream pointed to by bmp_stream. Saves all metadata in the structure pointed to by metadata. Returns true on success, false on failure */
-
-    if(!bmp_stream || !metadata) return false;
-    
-    //save previous stream offset
-    long int fileoff_before;
-    if((fileoff_before = ftell(bmp_stream)) == -1) {
-        perror("bmpparser: Error retrieving current stream offset: ");
-        return false;
-    }
-
-    //set offset to beginning for reading purposes
-    if(fseek(bmp_stream, 0, SEEK_SET) == -1) {
-        perror("bmpparser: Error seeking stream: ");
-        return false;
-    }
-
-    // allocate space for metadata
-    char *raw_bmp_data = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
-    if(!raw_bmp_data) {
-        perror("bmpparser: Error allocating memory: ");
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        return false;
-    }
-
-    //read all 54 bytes of metadata
-    if(fread(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
-        perror("bmpparser: Error reading metadata from stream: ");
-        free(raw_bmp_data);
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        return false;
-    }
-
-    if(!bbmp_parse_bmp_metadata((unsigned char *) raw_bmp_data, metadata)) {
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        free(raw_bmp_data);
-        return false;
-    }
-    
-    //cleanup
-    free(raw_bmp_data);
-    fseek(bmp_stream, fileoff_before, SEEK_SET);
-
-    return true;
-}
-
-bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata) {
+bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata) {
     /* 
-        Copy all properties (fields) of the Bmp_Info metadata struct pointed to by "location" to their respective locations inside of the raw metadata memory pointed to by "raw_bmp_data"
+        Copy all properties (fields) of the bbmp_Metadata metadata struct pointed to by "location" to their respective locations inside of the raw metadata memory pointed to by "raw_bmp_data"
     */
 
     // BMP file header
@@ -171,67 +124,8 @@ bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metad
     return true;
 }
 
-bool bbmp_write_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *metadata) {
-    /* 
-     * Read BMP metadata from the struct pointed to by "metadata" and save it to the FILE stream pointed to by
-     * "bmp_stream". The file offset of "bmp_stream" is untouched.
-     * "bmp_stream" must represent a file stream of a valid BMP file.
-    */
 
-    if(!bmp_stream || !metadata) return false;
-
-    long int fileoff_before;
-    if((fileoff_before = ftell(bmp_stream)) == -1) {
-        perror("bmpparser: Error retrieving current stream offset: ");
-        return false;
-    }
-
-    if(fseek(bmp_stream, 0, SEEK_SET) == -1) {
-        perror("bmpparser: Error seeking stream: ");
-        return false;
-    }
-
-    // allocate space for metadata
-    char *raw_bmp_data = malloc(HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE);
-    if(!raw_bmp_data) {
-        perror("bmpparser: Error allocating memory: ");
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        return false;
-    }
-
-    // read all 54 bytes of metadata
-    if(fread(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
-        perror("bmpparser: Error reading metadata from stream: ");
-        free(raw_bmp_data);
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        return false;
-    }
-
-    // write new metadata to the temporary buffer
-    if(!bbmp_write_bmp_metadata((unsigned char *) raw_bmp_data, metadata)) {
-        perror("bmpparser: Error modifying metadata: "); 
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        free(raw_bmp_data);
-        return false;
-    }
-
-    //write the (now modified) buffer back to the file
-    fseek(bmp_stream, 0, SEEK_SET); //rewind stream back to start
-    if(fwrite(raw_bmp_data, HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE, 1, bmp_stream) != 1) {
-        perror("bmpparser: Error writing metadata buffer back to file: ");
-        free(raw_bmp_data);
-        fseek(bmp_stream, fileoff_before, SEEK_SET);
-        return false;
-    }
-
-    free(raw_bmp_data);
-    fseek(bmp_stream, fileoff_before, SEEK_SET);
-    
-    return true;
-}
-
-
-void bbmp_debug_bmp_metadata(const struct Bmp_Info *dbgtemp) {
+void bbmp_debug_bmp_metadata(const struct bbmp_Metadata *dbgtemp) {
     /* 
      * Prints all fields of the metadata storage struct to stdout. Useful for debugging
      * All printed in base 10.

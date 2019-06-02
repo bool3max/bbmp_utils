@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-struct Bmp_Info {
+struct bbmp_Metadata {
     //bitmap file header
     char header_iden[2 + 1]; //the 2-letter (2byte) ascii representation of the DIB header used in the file
     uint32_t filesize; //the filesize (in bytes) of the actual .BMP file on disk
@@ -30,11 +30,9 @@ struct Bmp_Info {
     uint32_t resolution; //the total number of pixels in the pixelarray (width * height)
     uint32_t padding; //the number of 0x00 padding bytes at the end of each row, may be zero
     uint32_t pixelarray_size_np; //the total size of the pixelarray in bytes, excluding all null padding bytes
-};
+}; typedef struct bbmp_Metadata bbmp_Metadata;
 
 
-bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *location); 
-bool bbmp_parse_bmp_metadata_file(FILE *bmp_stream, struct Bmp_Info *location);
-bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct Bmp_Info *metadata);
-bool bbmp_write_bmp_metadata_file(FILE *bmp_steam, struct Bmp_Info *metadata);
-void bbmp_debug_bmp_metadata(const struct Bmp_Info *dbgtemp); 
+bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *location); 
+bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata);
+void bbmp_debug_bmp_metadata(const struct bbmp_Metadata *dbgtemp); 

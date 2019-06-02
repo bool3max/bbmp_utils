@@ -9,11 +9,10 @@
 
 typedef uint8_t *bbmp_PixelArray_Raw;
 
-inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct Bmp_Info *metadata, void *dest);
-static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw_file(FILE *bmp_stream, const struct Bmp_Info *metadata, void *dest); 
-static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct Bmp_Info *metadata);
+inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata, void *dest);
+static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata);
 
-static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct Bmp_Info *metadata) {
+static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata) {
     /* 
      * Print the entire raw pixelarray, byte by byte, to stdout.
     */
@@ -25,7 +24,7 @@ static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray
     fputc('\n', stream);
 }
 
-inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct Bmp_Info *metadata, void *dest) {
+inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata, void *dest) {
     /*
      * Copy the raw pixel array from "raw_bmp_data" to "dest". 
      * Its size is equal to metadata->pixelarray_size.
@@ -37,41 +36,35 @@ inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data,
     return memcpy(dest, raw_bmp_data + metadata->pixelarray_off, metadata->pixelarray_size);
 }
 
-static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw_file(FILE *bmp_stream, const struct Bmp_Info *metadata, void *dest) {
-    /*
-     * A stream-based interface for bbmp_get_pixelarray_raw.
-     * The function does not modify the offset of "bmp_stream".
-     * Returns a NULL pointer on failure.
+bool bbmp_get_image(uint8_t *raw_bmp_data, struct bbmp_Image *location) {
+    /* 
+     * Assuming that "raw_bmp_data" is a pointer to a memory location containing the entire BMP file data, 
+     * parse its metadata and save it to location->metadata and parse its pixelarray and save it to location->pixelarray.
+     * After the data is no longer needed, the API consumer must call bbmp_destroy_image() on the bbmp_Image structure to free all the
+     * required resources.
     */
 
-    if(!bmp_stream || !metadata || !dest) return NULL;
+    // parse the metadata and save it to the struct
+    if(!bbmp_parse_bmp_metadata(raw_bmp_data, &(location->metadata) )) return false;
 
-    //save the current offset of the stream
-    long off_before = ftell(bmp_stream);
-    if(off_before == -1) {
-        perror("bmp_helper: Error retrieving stream offset: ");
-        return NULL;
-    }
+    if((location->pixelarray = bbmp_get_pixelarray(raw_bmp_data, &(location->metadata))) == NULL) return false;
 
-    //seek stream to start of pixelarray data 
-    if(fseek(bmp_stream, metadata->pixelarray_off, SEEK_SET) == -1) {
-        perror("bmp_helper: Failed setting stream offset: ");
-        return NULL;
-    }
-
-    //read raw pixelarray data into dest
-    if(fread(dest, metadata->pixelarray_size, 1, bmp_stream) < 1) {
-        perror("bmp_helper: Failed reading pixelarray data from stream: ");
-        fseek(bmp_stream, off_before, SEEK_SET);
-        return NULL;
-    }
-    
-    //rewind stream
-    fseek(bmp_stream, off_before, SEEK_SET);
-    return dest;
+    return true;
 }
 
-bbmp_Pixel *bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct Bmp_Info *metadata) {
+bool bbmp_destroy_image(struct bbmp_Image *location) {
+    /*
+     * Free all resources allocated by the internal bbmp_Image representation
+    */
+
+    if(!location) return false;
+
+    free(location->pixelarray);
+
+    return true;
+}
+
+bbmp_Pixel *bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
     /* 
      * Returns a pointer to an array of "struct bbmp_Pixel" objects associated with a certain BMP image. 
      * Pixels are stored from the bottom left -> top right
@@ -117,7 +110,8 @@ bbmp_Pixel *bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct Bmp_Info *me
     return pixelarray_parsed;
 }
 
-bool bbmp_debug_pixelarray(FILE *stream, bbmp_Pixel *pixarray, const struct Bmp_Info *metadata, bool baseten) {
+
+bool bbmp_debug_pixelarray(FILE *stream, bbmp_Pixel *pixarray, const struct bbmp_Metadata *metadata, bool baseten) {
     /* 
      * Print RBG values to "stream" for each pixel in the parsed pixel array pointed to by "pixarray". 
      * If baseten is "true" (0...), print all RBG values in base 10 (decimal) instead of base 16 (hex)
