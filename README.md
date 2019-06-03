@@ -11,14 +11,6 @@ Right now it includes:
 * functionality for parsing metadata out of and writing it to BMP files
 * a helper API for working with raw BMP image data
 
-**TODO**: 
-
-* [ ] document the library API
-* [ ] support for DIB headers other than `BITMAPINFOHEADER` (`"BM"`)
-* [x] ~~optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)~~
-* [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
-* [x] ~~extend the build system to support more edge/use cases and installation~~
-
 ---
 
 ## Development
@@ -33,6 +25,16 @@ If you also wish to build the sample application used for the library and the AP
 The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
 
 Note that on linux, standard practice is to never install libraries w/ debugging symbols, so that should be avoided. (e.g. never install a build generated with `meson setup build -Dbuildtype=debug`)
+
+---
+
+**TODO**: 
+
+* [ ] document the library API
+* [ ] support for DIB headers other than `BITMAPINFOHEADER` (`"BM"`)
+* [x] ~~optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)~~
+* [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
+* [x] ~~extend the build system to support more edge/use cases and installation~~
 
 ---
 
