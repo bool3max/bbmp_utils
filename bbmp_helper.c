@@ -10,6 +10,7 @@
 typedef uint8_t *bbmp_PixelArray_Raw;
 
 inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata, void *dest);
+static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata); 
 static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata);
 
 static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata) {
@@ -70,7 +71,7 @@ bool bbmp_destroy_image(struct bbmp_Image *location) {
     return true;
 }
 
-bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
+static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
     /* 
      * TODO: update this description
      * Returns a pointer to an array of "struct bbmp_Pixel" objects associated with a certain BMP image. 

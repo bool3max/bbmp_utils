@@ -20,5 +20,3 @@ struct bbmp_Image {
 bool bbmp_get_image(uint8_t *raw_bmp_data, struct bbmp_Image *location); 
 bool bbmp_destroy_image(struct bbmp_Image *location);
 bool bbmp_debug_pixelarray(FILE *stream, bbmp_PixelArray pixarray, const struct bbmp_Metadata *metadata, bool baseten); 
-
-bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata); 
