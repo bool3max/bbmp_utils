@@ -13,7 +13,7 @@
 
 signed int main(int argc, char **argv) {
     struct stat tempstat;
-    if(stat(IMG, &tempstat) == -1 ) { 
+    if(stat(IMG, &tempstat) == -1) { 
         perror("stating failed: ");
         return EXIT_FAILURE;
     }
@@ -35,7 +35,7 @@ signed int main(int argc, char **argv) {
     if(!res) { perror("error occured: "); free(bmp_raw_data); }
     free(bmp_raw_data);
 
-    bbmp_debug_pixelarray(stdout, represent.pixelarray, &represent.metadata, true);
+    bbmp_debug_pixelarray(stdout, &represent, true);
     fprintf(stdout, "custom blue value: %hhu\n", represent.pixelarray[1][0].b);
 
     bbmp_destroy_image(&represent);

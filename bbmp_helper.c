@@ -57,7 +57,6 @@ bool bbmp_destroy_image(struct bbmp_Image *location) {
     /*
      * Free all resources allocated by the internal bbmp_Image representation
      * Namely the bbmp_PixelArray as it lives on the heap, as the metadata is a struct on the stack
-     *
     */
 
     if(!location) return false;
@@ -128,13 +127,13 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
 }
 
 
-bool bbmp_debug_pixelarray(FILE *stream, bbmp_PixelArray pixarray, const struct bbmp_Metadata *metadata, bool baseten) {
+bool bbmp_debug_pixelarray(FILE *stream, bbmp_Image *location, bool baseten) {
     /* 
      * Print RBG values to "stream" for each pixel in the parsed pixel array pointed to by "pixarray". 
      * If baseten is "true" (0...), print all RBG values in base 10 (decimal) instead of base 16 (hex)
      * Useful only when debugging relatively low-res images.
     */
-    if(!stream || !pixarray || !metadata) return false;
+    if(!stream || !location) return false;
 
     const char *format;
 
@@ -144,10 +143,11 @@ bool bbmp_debug_pixelarray(FILE *stream, bbmp_PixelArray pixarray, const struct 
         format = "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m ";
     }
 
-    for(bbmp_Pixel *bp = *pixarray; bp < (*pixarray) + metadata->pixelarray_height; bp++) {
-        for (bbmp_Pixel *bp_nest = bp; bp_nest < bp + metadata->pixelarray_width; bp_nest++) {
+    for(bbmp_Pixel *bp = *(location->pixelarray); bp < (*location->pixelarray) + location->metadata.pixelarray_height; bp++) {
+        for (bbmp_Pixel *bp_nest = bp; bp_nest < bp + location->metadata.pixelarray_width; bp_nest++) {
             fprintf(stream, format, bp->r, bp->g, bp->b);
         }
+
         fputc('\n', stream);
     }
 
