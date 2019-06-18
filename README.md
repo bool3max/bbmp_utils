@@ -32,6 +32,10 @@ If you're using the `fish` shell, sourcing this file (e.g. `$ source ./ali.fish`
 * `rt`: run the default test application in the debug build
 * `vrt`: run valgrind on the default test application in the debug build
 
+The aliases are global (not universal) and live only in the current shell session.
+
+---
+
 Note that on linux, standard practice is to never install libraries w/ debugging symbols, so that should be avoided. (e.g. never install a build generated with `meson setup build_* -Dbuildtype=debug`)
 
 ---
