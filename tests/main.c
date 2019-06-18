@@ -30,18 +30,15 @@ signed int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    struct Bmp_Info maininfo;
-    if(!bbmp_parse_bmp_metadata(bmp_raw_data, &maininfo)) {
-        free(bmp_raw_data); fclose(f);
-        return EXIT_FAILURE;
-    }
+    bbmp_Image represent;
+    bool res = bbmp_get_image(bmp_raw_data, &represent); 
+    if(!res) { perror("error occured: "); free(bmp_raw_data); }
+    free(bmp_raw_data);
 
-    bbmp_Pixel *pixarray = bbmp_get_pixelarray(bmp_raw_data, &maininfo); //now accessible in an array-like manner
-    free(bmp_raw_data); //not needed anymore, all the info we need is in memory
+    bbmp_debug_pixelarray(stdout, represent.pixelarray, &represent.metadata, true);
+    fprintf(stdout, "custom blue value: %hhu\n", represent.pixelarray[1][0].b);
 
-    //do actual work with the parsed pixel array
-    bbmp_debug_pixelarray(stdout, pixarray, &maininfo, false);
+    bbmp_destroy_image(&represent);
 
-    free(pixarray);
     return EXIT_SUCCESS;
 }

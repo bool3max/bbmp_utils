@@ -44,7 +44,7 @@ bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *
     if(!raw_bmp_data || !metadata) return false;
 
     if(* (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_IDEN) != BITMAPINFOHEADER_IDENTIFIER) {
-        printf("bmpparser: Only the BM DIB header structure is supported. Quitting...\n");
+        fprintf(stderr, "bmpparser: Only the BM DIB header structure is supported. Quitting...\n");
         return false;
     }
 

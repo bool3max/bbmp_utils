@@ -14,7 +14,7 @@ static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray
 
 static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata) {
     /* 
-     * Print the entire raw pixelarray, byte by byte, to stdout.
+     * Print the entire raw pixelarray, byte by byte, to the specified stream.
     */
 
     for (uint8_t *bp = pixarray_raw; bp < pixarray_raw + metadata->pixelarray_size; bp++) {
@@ -55,17 +55,24 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, struct bbmp_Image *location) {
 bool bbmp_destroy_image(struct bbmp_Image *location) {
     /*
      * Free all resources allocated by the internal bbmp_Image representation
+     * Namely the bbmp_PixelArray as it lives on the heap, as the metadata is a struct on the stack
+     *
     */
 
     if(!location) return false;
+
+    for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + (location->metadata).pixelarray_height; bp++) {
+        free(*bp);
+    }
 
     free(location->pixelarray);
 
     return true;
 }
 
-bbmp_Pixel *bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
+bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
     /* 
+     * TODO: update this description
      * Returns a pointer to an array of "struct bbmp_Pixel" objects associated with a certain BMP image. 
      * Pixels are stored from the bottom left -> top right
      * The length of the array is equal to metadata->resolution.
@@ -84,34 +91,43 @@ bbmp_Pixel *bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadat
 
     //store the raw pixelarray in the temporary buffer
     bbmp_get_pixelarray_raw(raw_bmp_data, metadata, pixelarray_raw);
-    
-    bbmp_Pixel *pixelarray_parsed = malloc(metadata->resolution * sizeof(struct bbmp_Pixel));
+
+    // allocate space for HEIGHT pointers to pixels
+    bbmp_PixelArray pixelarray_parsed = malloc(metadata->pixelarray_height * sizeof(bbmp_Pixel*));
     if(!pixelarray_parsed) {
         perror("bbmp_helper: Failed allocating memory: ");
         free(pixelarray_raw);
         return NULL;
     }
+     
+    //raw row pointer
+    bbmp_PixelArray_Raw bp_raw = pixelarray_raw;
 
-    // parse raw pixelarray data into a parsed, user-consumable format
-    bbmp_Pixel *pixelarray_parsed_bp = pixelarray_parsed;
-    for(bbmp_PixelArray_Raw bp = pixelarray_raw; bp < pixelarray_raw + metadata->pixelarray_size; bp += metadata->Bpr) {
-        // per row
-        for(bbmp_PixelArray_Raw bp_nest = bp; bp_nest < bp + metadata->Bpr_np; bp_nest += metadata->Bpp) {
-            // per pixel -- could use memcpy here instead of copying each byte, but it probably gets optimized anyways
-            pixelarray_parsed_bp->b = bp_nest[0];
-            pixelarray_parsed_bp->g = bp_nest[1];
-            pixelarray_parsed_bp->r = bp_nest[2];
+    // initialize each HEIGHT row
+    for (bbmp_PixelArray bp = pixelarray_parsed; bp < pixelarray_parsed + metadata->pixelarray_height; bp++) {
+        // make each pointer point to a memory location large enough to hold WIDTH instances of bbmp_Pixel
+        *bp = malloc(metadata->pixelarray_width * sizeof(bbmp_Pixel));
 
-            pixelarray_parsed_bp++;
+        bbmp_PixelArray_Raw bp_raw_nest = bp_raw;
+
+        // fill each allocated row 
+        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
+            bp_nest->b = bp_raw_nest[0];
+            bp_nest->g = bp_raw_nest[1];
+            bp_nest->r = bp_raw_nest[2];
+
+            bp_raw_nest += metadata->Bpp;
         }
-    }
 
-    free(pixelarray_raw); //no longer needed
+        bp_raw += metadata->Bpr;
+    }
+    
+    free(pixelarray_raw);
     return pixelarray_parsed;
 }
 
 
-bool bbmp_debug_pixelarray(FILE *stream, bbmp_Pixel *pixarray, const struct bbmp_Metadata *metadata, bool baseten) {
+bool bbmp_debug_pixelarray(FILE *stream, bbmp_PixelArray pixarray, const struct bbmp_Metadata *metadata, bool baseten) {
     /* 
      * Print RBG values to "stream" for each pixel in the parsed pixel array pointed to by "pixarray". 
      * If baseten is "true" (0...), print all RBG values in base 10 (decimal) instead of base 16 (hex)
@@ -122,16 +138,16 @@ bool bbmp_debug_pixelarray(FILE *stream, bbmp_Pixel *pixarray, const struct bbmp
     const char *format;
 
     if (baseten) {
-        format = "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m ";
-    } else {
         format = "\e[1m[[  \e[0m\e[31mR\e[0m:%3hhu - \e[32mG\e[0m:%3hhu - \e[34mB\e[0m:%3hhu\e[1m  ]]\e[0m ";
+    } else {
+        format = "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m ";
     }
 
-    size_t count = 0;
-    for(bbmp_Pixel *bp = pixarray; bp < pixarray + metadata->resolution; bp++) {
-        if(count % metadata->pixelarray_width == 0) fputc('\n', stream);        
-        fprintf(stream, format, bp->r, bp->g, bp->b);
-        count++;
+    for(bbmp_Pixel *bp = *pixarray; bp < (*pixarray) + metadata->pixelarray_height; bp++) {
+        for (bbmp_Pixel *bp_nest = bp; bp_nest < bp + metadata->pixelarray_width; bp_nest++) {
+            fprintf(stream, format, bp->r, bp->g, bp->b);
+        }
+        fputc('\n', stream);
     }
 
     fputc('\n', stream);

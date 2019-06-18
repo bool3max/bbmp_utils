@@ -17,14 +17,22 @@ Right now it includes:
 
 Development is done using `meson` with the `ninja` backend.
 
-1. Run `$ meson setup build -Dbuildtype=debug` (replace `debug` with `release` if you wish to build a release build w/o debugging symbols and w/ optimizations)
-2. Run `$ ninja -C build` to build the project
-3. Run `# ninja -C build install` to install the static library and the header files in the default location.
+1. Run `$ meson setup build_dbg -Dbuildtype=debug` (replace `debug` with `release` if you wish to build a release build w/o debugging symbols and w/ optimizations)
+2. Run `$ ninja -C build_dbg` to build the project
+3. Run `# ninja -C build_dbg install` to install the static library and the header files in the default location.
 
-If you also wish to build the sample application used for the library and the API, also pass `-Dbuild_test=true` to the initial `meson setup ...` command, or run `$ meson configure build -Dbuild_test=true && ninja -C build` if you've already run the setup.
+If you also wish to build the sample application used for the library and the API, also pass `-Dbuild_test=true` to the initial `meson setup ...` command, or run `$ meson configure build_dbg -Dbuild_test=true && ninja -C build_dbg` if you've already run the setup.
 The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
 
-Note that on linux, standard practice is to never install libraries w/ debugging symbols, so that should be avoided. (e.g. never install a build generated with `meson setup build -Dbuildtype=debug`)
+### `ali.fish`
+
+If you're using the `fish` shell, sourcing this file (e.g. `$ source ./ali.fish`) will expose a few aliases for more convenient developing inside the shell: 
+
+* `b`: build the debug version of the project
+* `rt`: run the default test application in the debug build
+* `vrt`: run valgrind on the default test application in the debug build
+
+Note that on linux, standard practice is to never install libraries w/ debugging symbols, so that should be avoided. (e.g. never install a build generated with `meson setup build_* -Dbuildtype=debug`)
 
 ---
 
