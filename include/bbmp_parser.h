@@ -32,6 +32,26 @@ struct bbmp_Metadata {
     uint32_t pixelarray_size_np; //the total size of the pixelarray in bytes, excluding all null padding bytes
 }; typedef struct bbmp_Metadata bbmp_Metadata;
 
+enum BSP_OFFSET {
+    //Bitmap File Header (always 14 bytes)
+    BSP_OFF_DIB_IDEN = 0x00,
+    BSP_OFF_FILESIZE = 0x02,
+    BSP_OFF_RES1 = 0x06,
+    BSP_OFF_RES2 = 0x08,
+    BSP_OFF_PIXELARRAY_START = 0x0A,
+    //DIB (BITMAPINFOHEADER, `BM`), (40 bytes) -- only DIB supported for now
+    BSP_OFF_DIB_SIZE = 0x0E,
+    BSP_OFF_DIB_IMGWIDTH = 0x12,
+    BSP_OFF_DIB_IMGHEIGHT = 0x16,
+    BSP_OFF_DIB_PLANESNUM = 0x1A,
+    BSP_OFF_DIB_BPP = 0x1C,
+    BSP_OFF_DIB_COMPRESSION = 0x1E,
+    BSP_OFF_DIB_IMGSIZE = 0x22,
+    BSP_OFF_DIB_PPM_HORIZ = 0x26,
+    BSP_OFF_DIB_PPM_VERT = 0x2A,
+    BSP_OFF_DIB_COLORSNUM = 0x2E,
+    BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
+};
 
 bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *location); 
 bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata);
