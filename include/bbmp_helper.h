@@ -19,5 +19,5 @@ struct bbmp_Image {
 
 bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location); 
 bool bbmp_destroy_image(bbmp_Image *location);
-//TODO: make bbmp_debug_pixelarray take an pointer to bbmp_Image instead of the pixelarray and the metadata separately
-bool bbmp_debug_pixelarray(FILE *stream, bbmp_Image *location, bool baseten); 
+uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data); 
+bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool baseten); 

@@ -11,6 +11,7 @@ typedef uint8_t *bbmp_PixelArray_Raw;
 
 inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata, void *dest);
 static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata); 
+static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed, const bbmp_Metadata *metadata, bbmp_PixelArray_Raw buffer); 
 static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata);
 
 static void bbmp_debug_pixelarray_raw(FILE *stream, bbmp_PixelArray_Raw pixarray_raw, const struct bbmp_Metadata *metadata) {
@@ -72,12 +73,10 @@ bool bbmp_destroy_image(struct bbmp_Image *location) {
 
 static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
     /* 
-     * TODO: update this description
-     * Returns a pointer to an array of "struct bbmp_Pixel" objects associated with a certain BMP image. 
-     * Pixels are stored from the bottom left -> top right
-     * The length of the array is equal to metadata->resolution.
-     * The caller is responsible for freeing the memory allocated and returned by this function.
-     * Returns NULL on failure.
+     * Parse raw BMP data pointed to by "raw_bmp_data" and return a 2D array of bbmp_Pixel structs.
+     * The array's 'dimensions' are equal to [metadata.pixelarray_height]*[metadata->pixelarray_width];
+     * The memory allocated by this function must be freed manually, although this is usually done by the API consumer using
+     * bbmp_destroy_image on a bbmp_Image struct.
     */
 
     if(!raw_bmp_data || !metadata) return NULL;
@@ -126,11 +125,77 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
     return pixelarray_parsed;
 }
 
+static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed, const bbmp_Metadata *metadata, bbmp_PixelArray_Raw buffer) {
+    /* 
+     * Convert the parsed pixelarray pointed to by "parsed" to a raw pixelarray, and save it to the buffer pointed to by "buffer".
+     * The buffer must be at least (metadata->Bpp * metadata->resolution) bytes large.
+     * On success, it returns a pointer to the destination buffer, and on failure it returns a null pointer.
+    */
 
-bool bbmp_debug_pixelarray(FILE *stream, bbmp_Image *location, bool baseten) {
+    if(!parsed || !metadata || !buffer) return NULL;
+
+    uint8_t *bp_raw = buffer;
+    for(bbmp_PixelArray bp = parsed; bp < parsed + metadata->pixelarray_height; bp++) {
+        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
+            buffer[0] = bp_nest->b; 
+            buffer[1] = bp_nest->g;
+            buffer[2] = bp_nest->r;
+
+            bp_raw += metadata->Bpp;
+        }
+    }
+
+    return buffer;
+}
+
+uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
+    /* 
+     * Write the BMP image pointed to by location to the raw_bmp_data pointed to by buffer.
+     * The size of the raw_bmp_data should, at a minimum, be equal to location->metadata.Bpp * location->metadata.resolution + 14 + 40
+     * (bytes per single pixel * number of pixels + the size of the BMP header + the size of the DIB bitmapinfo header)
+     * If the size of the raw_bmp_data doesn't meet the size requirements, the behavior is undefined.
+    */
+    
+    if(!location || !raw_bmp_data) return NULL;
+
+    bbmp_Metadata meta = location->metadata;
+
+    //write the header to the raw_bmp_data
+
+    memcpy(raw_bmp_data + BSP_OFF_DIB_IDEN, meta.header_iden, 2);
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_FILESIZE) = meta.filesize;
+    * (uint16_t *) (raw_bmp_data + BSP_OFF_RES1) = meta.res1;
+    * (uint16_t *) (raw_bmp_data + BSP_OFF_RES2) = meta.res2;
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_PIXELARRAY_START) = meta.pixelarray_off;
+
+    // write the DIB (BITMAPINFOHEADER, 'BM') header to the raw_bmp_data
+
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_SIZE) = meta.dib_size;
+    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGWIDTH) = meta.pixelarray_width;
+    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGHEIGHT) = meta.pixelarray_height;
+    * (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_PLANESNUM) = meta.panes_num;
+    * (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_BPP) = meta.bpp;
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COMPRESSION) = meta.compression_method;
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGSIZE) = meta.pixelarray_size;
+    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_HORIZ) = meta.ppm_horiz;
+    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_VERT ) = meta.ppm_vert;
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COLORSNUM) = meta.colors_num;
+    * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = meta.colors_important_num;
+
+    //convert the parsed pixelarray and save it to the offset to the start of the raw pixelarray in the raw bmp imge data
+    if(bbmp_convert_pixelarray(location->pixelarray, &(location->metadata), raw_bmp_data + meta.pixelarray_off) == NULL) {
+        fprintf(stderr, "bbmp_helper: Error converting parsed pixelarray.");
+        return NULL;
+    }
+    
+    return raw_bmp_data;
+}
+
+
+bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool baseten) {
     /* 
      * Print RBG values to "stream" for each pixel in the parsed pixel array pointed to by "pixarray". 
-     * If baseten is "true" (0...), print all RBG values in base 10 (decimal) instead of base 16 (hex)
+     * If baseten is "true", print all RBG values in base 10 (decimal) instead of base 16 (hex)
      * Useful only when debugging relatively low-res images.
     */
     if(!stream || !location) return false;

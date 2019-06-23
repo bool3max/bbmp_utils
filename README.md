@@ -44,6 +44,7 @@ Note that on linux, standard practice is to never install libraries w/ debugging
 
 * [ ] document the library API
 * [ ] support for DIB headers other than `BITMAPINFOHEADER` (`"BM"`)
+* [ ] modularize the errors and error logging using `butil`
 * [x] ~~optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)~~
 * [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
 * [x] ~~extend the build system to support more edge/use cases and installation~~
