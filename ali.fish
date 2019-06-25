@@ -7,3 +7,4 @@
 abbr -ag b 'ninja -C build_dbg'
 abbr -ag rt './build_dbg/tests/bbmp_utils_test'
 abbr -ag vrt 'valgrind --leak-check=full ./build_dbg/tests/bbmp_utils_test'
+abbr -ag g 'gdb ./build_dbg/tests/bbmp_utils_test'

@@ -31,6 +31,7 @@ If you're using the `fish` shell, sourcing this file (e.g. `$ source ./ali.fish`
 * `b`: build the debug version of the project
 * `rt`: run the default test application in the debug build
 * `vrt`: run valgrind on the default test application in the debug build
+* `g`: run GDB on the default test applicaiton in the debug build
 
 The aliases are global (not universal) and live only in the current shell session.
 
