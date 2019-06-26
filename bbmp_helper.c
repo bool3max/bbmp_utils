@@ -178,7 +178,7 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COMPRESSION) = meta.compression_method;
     * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMGSIZE) = meta.pixelarray_size;
     * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_HORIZ) = meta.ppm_horiz;
-    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_VERT ) = meta.ppm_vert;
+    * (int32_t *) (raw_bmp_data + BSP_OFF_DIB_PPM_VERT) = meta.ppm_vert;
     * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_COLORSNUM) = meta.colors_num;
     * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = meta.colors_important_num;
 
@@ -208,9 +208,11 @@ bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool basete
         format = "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m ";
     }
 
-    for(bbmp_Pixel *bp = *(location->pixelarray); bp < (*location->pixelarray) + location->metadata.pixelarray_height; bp++) {
-        for (bbmp_Pixel *bp_nest = bp; bp_nest < bp + location->metadata.pixelarray_width; bp_nest++) {
-            fprintf(stream, format, bp->r, bp->g, bp->b);
+    // pointer arithmetic based indexing
+
+    for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
+        for (bbmp_Pixel *bp_nest = *bp; bp_nest < *bp + location->metadata.pixelarray_width; bp_nest++) {
+            fprintf(stream, format, bp_nest->r, bp_nest->g, bp_nest->b);
         }
 
         fputc('\n', stream);
