@@ -2,6 +2,11 @@
 
 #include "bbmp_parser.h"
 
+/*
+ * Macro for calculating the memory space (in bytes) necesseray for storing a BMP image represented by `img`, the bbmp_Image type
+*/
+#define bbmp_image_calc_bytesize(img) ((14) + (40) + ((img)->metadata.resolution * (img)->metadata.Bpp))
+
 struct bbmp_Pixel {
     uint8_t r, g, b;
 }; 
