@@ -33,10 +33,27 @@ signed int main(int argc, char **argv) {
     bbmp_Image represent;
     bool res = bbmp_get_image(bmp_raw_data, &represent); 
     if(!res) { perror("error occured: "); free(bmp_raw_data); }
-    free(bmp_raw_data);
 
     bbmp_debug_pixelarray(stdout, &represent, true);
-    fprintf(stdout, "custom blue value: %hhu\n", represent.pixelarray[1][0].b);
+    (represent.pixelarray)[0][1].r = 255;
+
+    fputs("Changed [0][1]'s RED value to 255 baseten\n", stdout);
+    /* (represent.pixelarray)[0][1].g = 255; */   
+    /* (represent.pixelarray)[0][1].b = 255; */   
+    bbmp_debug_pixelarray(stdout, &represent, true);
+
+    printf("[0][0] red pixel: %hhu\n", represent.pixelarray[0][0].r);
+    printf("[0][1] red pixel: %hhu\n", represent.pixelarray[0][1].r);
+    printf("[1][0] red pixel: %hhu\n", represent.pixelarray[1][0].r);
+    printf("[1][1] red pixel: %hhu\n", represent.pixelarray[1][1].r);
+
+    bbmp_write_image(&represent, bmp_raw_data);
+
+    FILE *fp = fopen(IMG, "rw");
+    fwrite(bmp_raw_data, tempstat.st_size, 1, fp);
+    fclose(fp);
+
+    free(bmp_raw_data);
 
     bbmp_destroy_image(&represent);
 

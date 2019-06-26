@@ -9,6 +9,6 @@ incdir = include_directories('include')
 mainlib = static_library('bbmputil', sources, include_directories : incdir, install: true)
 install_headers(['include/bbmp_parser.h', 'include/bbmp_helper.h'], subdir: 'bbmp_utils')
 
-if get_option('build_test')
+if get_option('gen_test')
   subdir('tests') 
 endif
