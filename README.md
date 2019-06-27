@@ -21,7 +21,7 @@ Development is done using `meson` with the `ninja` backend.
 2. Run `$ ninja -C build_dbg` to build the project
 3. Run `# ninja -C build_dbg install` to install the static library and the header files in the default location.
 
-If you also wish to build the sample application used for the library and the API, also pass `-Dbuild_test=true` to the initial `meson setup ...` command, or run `$ meson configure build_dbg -Dbuild_test=true && ninja -C build_dbg` if you've already run the setup.
+If you also wish to build the sample application used for the library and the API, also pass `-Dgen_test=true` to the initial `meson setup ...` command, or run `$ meson configure build_dbg -Dgen_test=true && ninja -C build_dbg` if you've already run the setup.
 The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
 
 ### `ali.fish`
