@@ -54,5 +54,4 @@ enum BSP_OFFSET {
 };
 
 bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *location); 
-bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata);
 void bbmp_debug_bmp_metadata(const struct bbmp_Metadata *dbgtemp); 

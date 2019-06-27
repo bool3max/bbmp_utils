@@ -69,41 +69,6 @@ bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *
     return true;
 }
 
-bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata) {
-    /* 
-        Copy all properties (fields) of the bbmp_Metadata metadata struct pointed to by "location" to their respective locations inside of the raw metadata memory pointed to by "raw_bmp_data"
-    */
-
-    // BMP file header
-
-    if(!raw_bmp_data || !metadata) return false;
-
-    *(raw_bmp_data + BSP_OFF_DIB_IDEN) = metadata->header_iden[0];
-    *(raw_bmp_data + BSP_OFF_DIB_IDEN + 1) = metadata->header_iden[1];
-
-    *(raw_bmp_data + BSP_OFF_FILESIZE) = metadata->filesize;
-    *(raw_bmp_data + BSP_OFF_RES1) = metadata->res1;
-    *(raw_bmp_data + BSP_OFF_RES2) = metadata->res2;
-    *(raw_bmp_data + BSP_OFF_PIXELARRAY_START) = metadata->pixelarray_off;
-
-    // DIB header metadata
-
-    *(raw_bmp_data + BSP_OFF_DIB_SIZE) = metadata->dib_size;
-    *(raw_bmp_data + BSP_OFF_DIB_IMGWIDTH) = metadata->pixelarray_width;
-    *(raw_bmp_data + BSP_OFF_DIB_IMGHEIGHT) = metadata->pixelarray_height;
-    *(raw_bmp_data + BSP_OFF_DIB_PLANESNUM) = metadata->panes_num;
-    *(raw_bmp_data + BSP_OFF_DIB_BPP) = metadata->bpp;
-    *(raw_bmp_data + BSP_OFF_DIB_COMPRESSION) = metadata->compression_method;
-    *(raw_bmp_data + BSP_OFF_DIB_IMGSIZE) = metadata->pixelarray_size;
-    *(raw_bmp_data + BSP_OFF_DIB_PPM_HORIZ) = metadata->ppm_horiz;
-    *(raw_bmp_data + BSP_OFF_DIB_PPM_VERT) = metadata->ppm_vert;
-    *(raw_bmp_data + BSP_OFF_DIB_COLORSNUM) = metadata->colors_num;
-    *(raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = metadata->colors_important_num;
-
-    return true;
-}
-
-
 void bbmp_debug_bmp_metadata(const bbmp_Metadata *dbgtemp) {
     /* 
      * Prints all fields of the metadata storage struct to stdout. Useful for debugging
