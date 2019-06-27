@@ -128,7 +128,7 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
 static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed, const bbmp_Metadata *metadata, bbmp_PixelArray_Raw buffer) {
     /* 
      * Convert the parsed pixelarray pointed to by "parsed" to a raw pixelarray, and save it to the buffer pointed to by "buffer".
-     * The buffer must be at least (metadata->Bpp * metadata->resolution) bytes large.
+     * The buffer must be at least metadata->pixelarray_size bytes large.
      * On success, it returns a pointer to the destination buffer, and on failure it returns a null pointer.
     */
 
@@ -137,9 +137,10 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
     uint8_t *bp_raw = buffer;
     for(bbmp_PixelArray bp = parsed; bp < parsed + metadata->pixelarray_height; bp++) {
         for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
-            buffer[0] = bp_nest->b; 
-            buffer[1] = bp_nest->g;
-            buffer[2] = bp_nest->r;
+            //TODO: implement padding
+            bp_raw[0] = bp_nest->b; 
+            bp_raw[1] = bp_nest->g;
+            bp_raw[2] = bp_nest->r;
 
             bp_raw += metadata->Bpp;
         }
@@ -148,12 +149,36 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
     return buffer;
 }
 
+bool bbmp_metacustomupdate(bbmp_Image *loc) {
+    /* 
+     * Updates properties of the bbmp_Metadata structure based on the pixelarray_width, pixelarray_height, and bpp properties.
+     * The purpose of this function is to be called by the user in order to calculate custom metadata such as the padding (per row).
+     * If the API consumer modifies the height/width of the pixelarray associated with this metadata, they should manually call this function before
+     * attempting to write the said pixelarray to a buffer using bbmp_write_imge.
+    */
+
+    if(!loc) return false;
+
+    // not all fields are updated, since some of them are constant (e.g. .bpp and .Bpp)
+    
+    loc->metadata.Bpr = ceil(( (double) loc->metadata.bpp * loc->metadata.pixelarray_width) / 32) * 4;
+    loc->metadata.Bpr_np = (loc->metadata.pixelarray_width * loc->metadata.Bpp);
+    loc->metadata.padding = loc->metadata.Bpr - (loc->metadata.pixelarray_width * loc->metadata.Bpp);
+    loc->metadata.resolution = loc->metadata.pixelarray_height * loc->metadata.pixelarray_width;
+    loc->metadata.pixelarray_size_np = loc->metadata.resolution * loc->metadata.Bpp;
+
+    loc->metadata.pixelarray_size = loc->metadata.pixelarray_size_np + (loc->metadata.pixelarray_height * loc->metadata.padding);
+
+    return true;
+}
+
 uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     /* 
      * Write the BMP image pointed to by location to the raw_bmp_data pointed to by buffer.
-     * The size of the raw_bmp_data should, at a minimum, be equal to location->metadata.Bpp * location->metadata.resolution + 14 + 40
-     * (bytes per single pixel * number of pixels + the size of the BMP header + the size of the DIB bitmapinfo header)
+     * The size of the raw_bmp_data should, at a minimum, be equal to 14 + 40 + metadata->pixelarray_size
      * If the size of the raw_bmp_data doesn't meet the size requirements, the behavior is undefined.
+     * Before calling this function, the API consumer should call bbmp_metacustomupdate on the associated bbmp_Image structure, in order to update
+     * the fields that this function utilizies.
     */
     
     if(!location || !raw_bmp_data) return NULL;
