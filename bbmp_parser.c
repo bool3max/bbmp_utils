@@ -104,7 +104,7 @@ bool bbmp_write_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *
 }
 
 
-void bbmp_debug_bmp_metadata(const struct bbmp_Metadata *dbgtemp) {
+void bbmp_debug_bmp_metadata(const bbmp_Metadata *dbgtemp) {
     /* 
      * Prints all fields of the metadata storage struct to stdout. Useful for debugging
      * All printed in base 10.

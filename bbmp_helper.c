@@ -136,14 +136,19 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
 
     uint8_t *bp_raw = buffer;
     for(bbmp_PixelArray bp = parsed; bp < parsed + metadata->pixelarray_height; bp++) {
-        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
-            //TODO: implement padding
-            bp_raw[0] = bp_nest->b; 
-            bp_raw[1] = bp_nest->g;
-            bp_raw[2] = bp_nest->r;
+        uint8_t *bp_raw_nest = bp_raw;
 
-            bp_raw += metadata->Bpp;
+        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
+            bp_raw_nest[0] = bp_nest->b; 
+            bp_raw_nest[1] = bp_nest->g;
+            bp_raw_nest[2] = bp_nest->r;
+
+            bp_raw_nest += metadata->Bpp;
         }
+
+        memset(bp_raw_nest, 0x0, metadata->padding);
+
+        bp_raw += metadata->Bpr;
     }
 
     return buffer;
