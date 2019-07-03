@@ -35,27 +35,29 @@ signed int main(int argc, char **argv) {
     bbmp_Image represent;
     bool res = bbmp_get_image(bmp_raw_data, &represent); 
     if(!res) { perror("error occured: "); free(bmp_raw_data); }
+    free(bmp_raw_data);
 
     bbmp_debug_bmp_metadata(&represent.metadata);
 
     bbmp_debug_pixelarray(stdout, &represent, true);
 
-    fputs("modified [0][1] to all-green\n", stdout);
-    (represent.pixelarray)[0][1] = (bbmp_Pixel) {0, 255, 0}; //rgb
-    (represent.pixelarray)[1][1] = (bbmp_Pixel) {255, 255, 1}; 
+    bbmp_enlarge_pixelarray(&represent, represent.metadata.pixelarray_width, represent.metadata.pixelarray_height + 2, & (bbmp_Pixel) {99, 0, 0});
+
+    bbmp_debug_bmp_metadata(&represent.metadata);
 
     bbmp_debug_pixelarray(stdout, &represent, true);
 
-    bbmp_metacustomupdate(&represent); //not *necessary* here, but JIC
+    void *bmp_raw_data_new = malloc(represent.metadata.filesize);
 
-    bbmp_write_image(&represent, bmp_raw_data);
+    fprintf(stdout, "writing image to raw buffer...\n");
+    bbmp_write_image(&represent, bmp_raw_data_new);
 
     FILE *fp = fopen(IMG, "r+");
     rewind(fp);
-    fwrite(bmp_raw_data, tempstat.st_size, 1, fp);
+    fwrite(bmp_raw_data_new, represent.metadata.filesize, 1, fp);
     fclose(fp);
 
-    free(bmp_raw_data);
+    free(bmp_raw_data_new);
 
     bbmp_destroy_image(&represent);
 

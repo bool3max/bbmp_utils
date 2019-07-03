@@ -11,10 +11,6 @@
  *  Only supports the `BM` BITMAPINFOHEADER DIB structure.
 */
 
-#define HEADER_BYTESIZE (14) //file header size, constant 14 bytes
-#define BITMAPINFOHEADER_BYTESIZE (40) //hardcoded because we only support this particular (BM) DIB structure
-#define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
-
 bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *metadata) {
     /* 
         Reads BMP file metadata from the memory pointed to by raw_bmp_data. raw_bmp_data must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.

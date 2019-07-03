@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define HEADER_BYTESIZE (14) //file header size, constant 14 bytes
+#define BITMAPINFOHEADER_BYTESIZE (40) //hardcoded because we only support this particular (BM) DIB structure
+#define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
+
 struct bbmp_Metadata {
     //bitmap file header
     char header_iden[2 + 1]; //the 2-letter (2byte) ascii representation of the DIB header used in the file
@@ -53,5 +57,5 @@ enum BSP_OFFSET {
     BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
 };
 
-bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *location); 
-void bbmp_debug_bmp_metadata(const struct bbmp_Metadata *dbgtemp); 
+bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, bbmp_Metadata *location); 
+void bbmp_debug_bmp_metadata(const bbmp_Metadata *dbgtemp); 
