@@ -220,13 +220,23 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
                 bp_nest->g = fill->g;
                 bp_nest->r = fill->r;
             }
-
         }
-
     }
 
     if(width > prev_width) {
-        fprintf(stderr, "bbmp_helper: Enlarging width not implemented\n");
+        for(bbmp_PixelArray bp = img->pixelarray; bp < img->pixelarray + img->metadata.pixelarray_height; bp++) {
+            *bp = realloc(*bp, img->metadata.pixelarray_width * sizeof(bbmp_Pixel));
+            if(!(*bp)) {
+                perror("bbmp_helper: Error enlarging WIDTH dimension of pixelarray: ");
+                return false;
+            }
+
+            for(bbmp_Pixel *bp_nest = *bp + prev_width; bp_nest < *bp + img->metadata.pixelarray_width; bp_nest++) {
+                bp_nest->b = fill->b;
+                bp_nest->g = fill->g;
+                bp_nest->r = fill->r;
+            }
+        }
     }
     
     return true;
