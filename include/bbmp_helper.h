@@ -9,12 +9,12 @@
  * update bbmp_Image.metadata.pixelarray_height/pixelarray_width as well
 */
 #define bbmp_image_calc_bytesize(img) ((14) + (40) + (img)->metadata.pixelarray_size)
+#define bbmp_res_calc_bytesize(width, height, bpp) ((14) + (40) + (width * height * (bpp / 8)))
 
 struct bbmp_Pixel {
     uint8_t r, g, b;
-}; 
+}; typedef struct bbmp_Pixel bbmp_Pixel;
 
-typedef struct bbmp_Pixel bbmp_Pixel;
 typedef bbmp_Pixel **bbmp_PixelArray;
 
 /*
