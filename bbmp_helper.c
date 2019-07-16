@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include <stdbool.h>
 
 #include "bbmp_parser.h"
@@ -146,6 +147,7 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
             bp_raw_nest += metadata->Bpp;
         }
 
+        //append padding
         memset(bp_raw_nest, 0x0, metadata->padding);
 
         bp_raw += metadata->Bpr;
