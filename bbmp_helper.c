@@ -55,6 +55,47 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location) {
     return true;
 }
 
+bool bbmp_create_canvas(int32_t pixelarray_width, int32_t pixelarray_height, uint16_t bpp, const bbmp_Pixel *fill, bbmp_Image *location) {
+    /*
+     * Create a "canvas" or a blank instance of a BMP image and save it to *location, which must be a valid pointer to a bbmp_Image structure.
+     * The instance is created using basic parameters passed as parameters: pixelarray_width, pixelarray_height, bpp (color depth). 
+     * The bbmp_Metadata structure and all of its members are calculated based off of these basic parameters. 
+     * If "fill" is not a null pointer, the canvas is filled with pixels based off of this reference pixel. Otherwise, the pixelarray memory is left uninitialized.
+     * (it is *allocated*, but is left uninitialized)
+    */
+
+    if(!location) return false;
+    
+    // save pixelarray dimensions and color depth to metadata
+    location->metadata.pixelarray_width = pixelarray_width;
+    location->metadata.pixelarray_height = pixelarray_height;
+    location->metadata.bpp = bpp;
+
+    // updates Bpr, Bpr_np, padding, resolution, pixelarray_size_np, pixelarray_size and filesize metadata properties
+    bbmp_metacustomupdate(location);
+
+    // update the rest of the metadata properties
+
+    memcpy(location->metadata.header_iden, BITMAPINFOHEADER_STRING, 3);
+    location->metadata.res1 = 0;
+    location->metadata.res2 = 0;
+    location->metadata.pixelarray_off = HEADER_BYTESIZE + BITMAPINFOHEADER_BYTESIZE;
+    location->metadata.dib_size = BITMAPINFOHEADER_BYTESIZE;
+    location->metadata.panes_num = 1;
+    location->metadata.compression_method = 0;
+    location->metadata.ppm_horiz = 0; 
+    location->metadata.ppm_vert = 0;
+    location->metadata.colors_num = 0;
+    location->metadata.colors_important_num = 0;
+    location->metadata.Bpp = bpp / 8;
+
+    // initialize pixelarray memory
+    
+     
+
+    return true;
+}
+
 bool bbmp_destroy_image(bbmp_Image *location) {
     /*
      * Free all resources allocated by the internal bbmp_Image representation
@@ -255,7 +296,7 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     
     if(!location || !raw_bmp_data) return NULL;
 
-    bbmp_Metadata meta = location->metadata;
+    #define meta location->metadata
 
     //write the header to the raw_bmp_data
 
