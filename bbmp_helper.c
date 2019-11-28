@@ -55,7 +55,7 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location) {
     return true;
 }
 
-bool bbmp_create_canvas(int32_t pixelarray_width, int32_t pixelarray_height, uint16_t bpp, const bbmp_Pixel *fill, bbmp_Image *location) {
+bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_height, uint16_t bpp, const bbmp_Pixel *fill, bbmp_Image *location) {
     /*
      * Create a "canvas" or a blank instance of a BMP image and save it to *location, which must be a valid pointer to a bbmp_Image structure.
      * The instance is created using basic parameters passed as parameters: pixelarray_width, pixelarray_height, bpp (color depth). 
@@ -71,11 +71,7 @@ bool bbmp_create_canvas(int32_t pixelarray_width, int32_t pixelarray_height, uin
     location->metadata.pixelarray_height = pixelarray_height;
     location->metadata.bpp = bpp;
 
-    // updates Bpr, Bpr_np, padding, resolution, pixelarray_size_np, pixelarray_size and filesize metadata properties
-    bbmp_metacustomupdate(location);
-
-    // update the rest of the metadata properties
-
+    // update metadata properties that bbmp_metacustomupdate() doesn't touch
     memcpy(location->metadata.header_iden, BITMAPINFOHEADER_STRING, 3);
     location->metadata.res1 = 0;
     location->metadata.res2 = 0;
@@ -89,11 +85,35 @@ bool bbmp_create_canvas(int32_t pixelarray_width, int32_t pixelarray_height, uin
     location->metadata.colors_important_num = 0;
     location->metadata.Bpp = bpp / 8;
 
-    // initialize pixelarray memory
-    
-     
+    // updates Bpr, Bpr_np, padding, resolution, pixelarray_size_np, pixelarray_size and filesize metadata properties
+    bbmp_metacustomupdate(location);
 
-    return true;
+    if(fill) {
+        // allocate and fill pixelarray memory     
+        location->pixelarray = malloc(location->metadata.pixelarray_height * sizeof(bbmp_Pixel *));
+        if(!location->pixelarray) {
+            perror("bbmp_helper: Failed allocating memory\n");
+            return NULL;
+        }
+
+        for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
+            *bp = malloc(location->metadata.pixelarray_width * sizeof(bbmp_Pixel));
+
+            if(!(*bp)) {
+                perror("bbmp_helper: Failed allocating memory\n");
+                free(location->pixelarray);
+                return NULL;
+            }
+
+            for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + location->metadata.pixelarray_width; bp_nest++) {
+                bp_nest->r = fill->r;
+                bp_nest->g = fill->g;
+                bp_nest->b = fill->b;
+            }
+        }
+    }
+
+    return location;
 }
 
 bool bbmp_destroy_image(bbmp_Image *location) {
@@ -325,6 +345,8 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
         fprintf(stderr, "bbmp_helper: Error converting parsed pixelarray.");
         return NULL;
     }
+
+    #undef meta
     
     return raw_bmp_data;
 }
