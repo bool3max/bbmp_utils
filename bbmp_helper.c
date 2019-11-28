@@ -34,7 +34,7 @@ inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data,
      * Returns a NULL pointer on failure.
     */
 
-    if(!raw_bmp_data || !metadata || !dest) return NULL;
+    if (!raw_bmp_data || !metadata || !dest) return NULL;
 
     return memcpy(dest, raw_bmp_data + metadata->pixelarray_off, metadata->pixelarray_size);
 }
@@ -48,9 +48,9 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location) {
     */
 
     // parse the metadata and save it to the struct
-    if(!bbmp_parse_bmp_metadata(raw_bmp_data, &(location->metadata) )) return false;
+    if (!bbmp_parse_bmp_metadata(raw_bmp_data, &(location->metadata) )) return false;
 
-    if((location->pixelarray = bbmp_get_pixelarray(raw_bmp_data, &(location->metadata))) == NULL) return false;
+    if ((location->pixelarray = bbmp_get_pixelarray(raw_bmp_data, &(location->metadata))) == NULL) return false;
 
     return true;
 }
@@ -64,7 +64,7 @@ bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_heigh
      * (it is *allocated*, but is left uninitialized)
     */
 
-    if(!location) return false;
+    if (!location) return false;
     
     // save pixelarray dimensions and color depth to metadata
     location->metadata.pixelarray_width = pixelarray_width;
@@ -88,24 +88,24 @@ bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_heigh
     // updates Bpr, Bpr_np, padding, resolution, pixelarray_size_np, pixelarray_size and filesize metadata properties
     bbmp_metaupdate(location);
 
-    if(fill) {
+    if (fill) {
         // allocate and fill pixelarray memory     
         location->pixelarray = malloc(location->metadata.pixelarray_height * sizeof(bbmp_Pixel *));
-        if(!location->pixelarray) {
+        if (!location->pixelarray) {
             perror("bbmp_helper: Failed allocating memory\n");
             return NULL;
         }
 
-        for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
+        for (bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
             *bp = malloc(location->metadata.pixelarray_width * sizeof(bbmp_Pixel));
 
-            if(!(*bp)) {
+            if (!(*bp)) {
                 perror("bbmp_helper: Failed allocating memory\n");
                 free(location->pixelarray);
                 return NULL;
             }
 
-            for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + location->metadata.pixelarray_width; bp_nest++) {
+            for (bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + location->metadata.pixelarray_width; bp_nest++) {
                 bp_nest->r = fill->r;
                 bp_nest->g = fill->g;
                 bp_nest->b = fill->b;
@@ -122,9 +122,9 @@ bool bbmp_destroy_image(bbmp_Image *location) {
      * Namely the bbmp_PixelArray as it lives on the heap, as the metadata is a struct on the stack
     */
 
-    if(!location) return false;
+    if (!location) return false;
 
-    for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + (location->metadata).pixelarray_height; bp++) {
+    for (bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + (location->metadata).pixelarray_height; bp++) {
         free(*bp);
     }
 
@@ -141,11 +141,11 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
      * bbmp_destroy_image on a bbmp_Image struct.
     */
 
-    if(!raw_bmp_data || !metadata) return NULL;
+    if (!raw_bmp_data || !metadata) return NULL;
 
     //allocate space for the raw pixelarray
     bbmp_PixelArray_Raw pixelarray_raw = malloc(metadata->pixelarray_size);
-    if(!pixelarray_raw) {
+    if (!pixelarray_raw) {
         perror("bbmp_helper: Failed allocating memory: ");
         return NULL;
     }
@@ -155,7 +155,7 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
 
     // allocate space for HEIGHT pointers to pixels
     bbmp_PixelArray pixelarray_parsed = malloc(metadata->pixelarray_height * sizeof(bbmp_Pixel*));
-    if(!pixelarray_parsed) {
+    if (!pixelarray_parsed) {
         perror("bbmp_helper: Failed allocating memory: ");
         free(pixelarray_raw);
         return NULL;
@@ -168,7 +168,7 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
     for (bbmp_PixelArray bp = pixelarray_parsed; bp < pixelarray_parsed + metadata->pixelarray_height; bp++) {
         // make each pointer point to a memory location large enough to hold WIDTH instances of bbmp_Pixel
         *bp = malloc(metadata->pixelarray_width * sizeof(bbmp_Pixel));
-        if(!(*bp)) {
+        if (!(*bp)) {
             perror("bbmp_helper: Failed allocating memory: ");
             free(pixelarray_raw); 
             free(pixelarray_parsed);
@@ -178,7 +178,7 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
         bbmp_PixelArray_Raw bp_raw_nest = bp_raw;
 
         // fill each allocated row 
-        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
+        for (bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
             bp_nest->b = bp_raw_nest[0];
             bp_nest->g = bp_raw_nest[1];
             bp_nest->r = bp_raw_nest[2];
@@ -200,13 +200,13 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
      * On success, it returns a pointer to the destination buffer, and on failure it returns a null pointer.
     */
 
-    if(!parsed || !metadata || !buffer) return NULL;
+    if (!parsed || !metadata || !buffer) return NULL;
 
     uint8_t *bp_raw = buffer;
-    for(bbmp_PixelArray bp = parsed; bp < parsed + metadata->pixelarray_height; bp++) {
+    for (bbmp_PixelArray bp = parsed; bp < parsed + metadata->pixelarray_height; bp++) {
         uint8_t *bp_raw_nest = bp_raw;
 
-        for(bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
+        for (bbmp_Pixel *bp_nest = *bp; bp_nest < (*bp) + metadata->pixelarray_width; bp_nest++) {
             bp_raw_nest[0] = bp_nest->b; 
             bp_raw_nest[1] = bp_nest->g;
             bp_raw_nest[2] = bp_nest->r;
@@ -231,7 +231,7 @@ bool bbmp_metaupdate(bbmp_Image *img) {
      * attempting to write the said pixelarray to a buffer using bbmp_write_imge.
     */
 
-    if(!img) return false;
+    if (!img) return false;
 
     // not all fields are updated, since some of them are constant (e.g. .bpp and .Bpp)
     
@@ -257,7 +257,7 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
      * Returns true on success.
     */
     
-    if((!img || !fill) || height < img->metadata.pixelarray_height || width < img->metadata.pixelarray_width) return false;
+    if ((!img || !fill) || height < img->metadata.pixelarray_height || width < img->metadata.pixelarray_width) return false;
 
     int32_t prev_width = img->metadata.pixelarray_width,
             prev_height = img->metadata.pixelarray_height;
@@ -269,22 +269,22 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
     //update rest of the metadata based on the new dimension(s)
     bbmp_metaupdate(img);
     
-    if(height > prev_height) {
+    if (height > prev_height) {
         img->pixelarray = realloc(img->pixelarray, img->metadata.pixelarray_height * sizeof(bbmp_Pixel *));
-        if(!img->pixelarray) { 
+        if (!img->pixelarray) { 
             perror("bbmp_helper: Error enlarging HEIGHT dimension of pixelarray: ");
             return false;
         }
 
         // initialize new pointers with more rows and fill those rows with the reference pixel
-        for(bbmp_PixelArray bp = img->pixelarray + prev_height; bp < img->pixelarray + height; bp++) {
+        for (bbmp_PixelArray bp = img->pixelarray + prev_height; bp < img->pixelarray + height; bp++) {
             *bp = malloc(img->metadata.pixelarray_width * sizeof(bbmp_Pixel));
-            if(!(*bp)) {
+            if (!(*bp)) {
                 perror("bbmp_helper: Error enlarging HEIGHT dimension of pixelarray: ");
                 return false;
             }
 
-            for(bbmp_Pixel *bp_nest = *bp; bp_nest < *bp + img->metadata.pixelarray_width; bp_nest++) {
+            for (bbmp_Pixel *bp_nest = *bp; bp_nest < *bp + img->metadata.pixelarray_width; bp_nest++) {
                 bp_nest->b = fill->b;
                 bp_nest->g = fill->g;
                 bp_nest->r = fill->r;
@@ -292,15 +292,15 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
         }
     }
 
-    if(width > prev_width) {
-        for(bbmp_PixelArray bp = img->pixelarray; bp < img->pixelarray + img->metadata.pixelarray_height; bp++) {
+    if (width > prev_width) {
+        for (bbmp_PixelArray bp = img->pixelarray; bp < img->pixelarray + img->metadata.pixelarray_height; bp++) {
             *bp = realloc(*bp, img->metadata.pixelarray_width * sizeof(bbmp_Pixel));
-            if(!(*bp)) {
+            if (!(*bp)) {
                 perror("bbmp_helper: Error enlarging WIDTH dimension of pixelarray: ");
                 return false;
             }
 
-            for(bbmp_Pixel *bp_nest = *bp + prev_width; bp_nest < *bp + img->metadata.pixelarray_width; bp_nest++) {
+            for (bbmp_Pixel *bp_nest = *bp + prev_width; bp_nest < *bp + img->metadata.pixelarray_width; bp_nest++) {
                 bp_nest->b = fill->b;
                 bp_nest->g = fill->g;
                 bp_nest->r = fill->r;
@@ -320,7 +320,7 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
      * the fields that this function utilizies.
     */
     
-    if(!location || !raw_bmp_data) return NULL;
+    if (!location || !raw_bmp_data) return NULL;
 
     #define meta location->metadata
 
@@ -347,7 +347,7 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     * (uint32_t *) (raw_bmp_data + BSP_OFF_DIB_IMPORTANTCOLORSNUM) = meta.colors_important_num;
 
     //convert the parsed pixelarray and save it to the offset to the start of the raw pixelarray in the raw bmp imge data
-    if(bbmp_convert_pixelarray(location->pixelarray, &(location->metadata), raw_bmp_data + meta.pixelarray_off) == NULL) {
+    if (bbmp_convert_pixelarray(location->pixelarray, &(location->metadata), raw_bmp_data + meta.pixelarray_off) == NULL) {
         fprintf(stderr, "bbmp_helper: Error converting parsed pixelarray.");
         return NULL;
     }
@@ -363,7 +363,7 @@ bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool basete
      * If baseten is "true", print all RBG values in base 10 (decimal) instead of base 16 (hex)
      * Useful only when debugging relatively low-res images.
     */
-    if(!stream || !location) return false;
+    if (!stream || !location) return false;
 
     const char *format;
 
@@ -375,7 +375,7 @@ bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool basete
 
     // pointer arithmetic based indexing
 
-    for(bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
+    for (bbmp_PixelArray bp = location->pixelarray; bp < location->pixelarray + location->metadata.pixelarray_height; bp++) {
         for (bbmp_Pixel *bp_nest = *bp; bp_nest < *bp + location->metadata.pixelarray_width; bp_nest++) {
             fprintf(stream, format, bp_nest->r, bp_nest->g, bp_nest->b);
         }

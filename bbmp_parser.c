@@ -16,9 +16,9 @@ bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, struct bbmp_Metadata *
         Reads BMP file metadata from the memory pointed to by raw_bmp_data. raw_bmp_data must be at least 54 (bound to change?) bytes wide. Saves all metadata in the structure pointed to by metadata.
         Returns true on success, false on failure. If memloc is < 54 bytes wide, behaviour is undefined
     */
-    if(!raw_bmp_data || !metadata) return false;
+    if (!raw_bmp_data || !metadata) return false;
 
-    if(* (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_IDEN) != BITMAPINFOHEADER_IDENTIFIER) {
+    if (* (uint16_t *) (raw_bmp_data + BSP_OFF_DIB_IDEN) != BITMAPINFOHEADER_IDENTIFIER) {
         fprintf(stderr, "bmpparser: Only the BM DIB header structure is supported. Quitting...\n");
         return false;
     }
