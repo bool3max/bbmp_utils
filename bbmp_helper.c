@@ -168,6 +168,12 @@ static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct b
     for (bbmp_PixelArray bp = pixelarray_parsed; bp < pixelarray_parsed + metadata->pixelarray_height; bp++) {
         // make each pointer point to a memory location large enough to hold WIDTH instances of bbmp_Pixel
         *bp = malloc(metadata->pixelarray_width * sizeof(bbmp_Pixel));
+        if(!(*bp)) {
+            perror("bbmp_helper: Failed allocating memory: ");
+            free(pixelarray_raw); 
+            free(pixelarray_parsed);
+            return NULL;
+        }
 
         bbmp_PixelArray_Raw bp_raw_nest = bp_raw;
 
