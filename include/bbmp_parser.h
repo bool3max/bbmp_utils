@@ -7,6 +7,7 @@
 #define HEADER_BYTESIZE (14) //file header size, constant 14 bytes
 #define BITMAPINFOHEADER_BYTESIZE (40) //hardcoded because we only support this particular (BM) DIB structure
 #define BITMAPINFOHEADER_IDENTIFIER (0x4D42) //hardcoded for same reason, only support BM structure
+#define BITMAPINFOHEADER_STRING "BM"
 
 struct bbmp_Metadata {
     //bitmap file header
@@ -23,7 +24,7 @@ struct bbmp_Metadata {
     uint16_t bpp; //bits per single pixel (usually 24 or 32)
     uint32_t compression_method; //the compression method
     uint32_t pixelarray_size; //the size (in bytes) of the pixelarray (actual image data)
-    int32_t ppm_horiz; //horizontal resolution if image in pixels per meter
+    int32_t ppm_horiz; //horizontal resolution of the image in pixels per meter
     int32_t ppm_vert; //vertical ---
     uint32_t colors_num; //the number of colors in the color palette
     uint32_t colors_important_num; //generally ignored
