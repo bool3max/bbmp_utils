@@ -71,7 +71,7 @@ bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_heigh
     location->metadata.pixelarray_height = pixelarray_height;
     location->metadata.bpp = bpp;
 
-    // update metadata properties that bbmp_metacustomupdate() doesn't touch
+    // update metadata properties that bbmp_metaupdate() doesn't touch
     memcpy(location->metadata.header_iden, BITMAPINFOHEADER_STRING, 3);
     location->metadata.res1 = 0;
     location->metadata.res2 = 0;
@@ -86,7 +86,7 @@ bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_heigh
     location->metadata.Bpp = bpp / 8;
 
     // updates Bpr, Bpr_np, padding, resolution, pixelarray_size_np, pixelarray_size and filesize metadata properties
-    bbmp_metacustomupdate(location);
+    bbmp_metaupdate(location);
 
     if(fill) {
         // allocate and fill pixelarray memory     
@@ -223,7 +223,7 @@ static bbmp_PixelArray_Raw bbmp_convert_pixelarray(const bbmp_PixelArray parsed,
     return buffer;
 }
 
-bool bbmp_metacustomupdate(bbmp_Image *img) {
+bool bbmp_metaupdate(bbmp_Image *img) {
     /* 
      * Updates properties of the bbmp_Metadata structure based on the pixelarray_width, pixelarray_height, and bpp properties.
      * The purpose of this function is to be called by the user in order to calculate custom metadata such as the padding (per row).
@@ -251,7 +251,7 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
     /* 
      * Dynamically update the size of the pixelarray of the associated bbmp_Image instance pointed to by `img`. 
      * If either of the passed dimensions is lower than that of the current pixelarray, the function returns false. 
-     * If either is larger, the pixelarray is resized and reallocated, and the metadata is updated using bbmp_metacustomupdate.
+     * If either is larger, the pixelarray is resized and reallocated, and the metadata is updated using bbmp_metaupdate.
      * When either passed dimension is larger, the new blank rows/columns are appended to the top/right of the image respectively, and their pixels values
      * are initialized to that of the "fill" reference pixel. 
      * Returns true on success.
@@ -267,7 +267,7 @@ bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, con
     img->metadata.pixelarray_height = height;
     
     //update rest of the metadata based on the new dimension(s)
-    bbmp_metacustomupdate(img);
+    bbmp_metaupdate(img);
     
     if(height > prev_height) {
         img->pixelarray = realloc(img->pixelarray, img->metadata.pixelarray_height * sizeof(bbmp_Pixel *));
@@ -316,7 +316,7 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
      * Write the BMP image pointed to by location to the raw_bmp_data pointed to by buffer.
      * The size of the raw_bmp_data should, at a minimum, be equal to 14 + 40 + metadata->pixelarray_size
      * If the size of the raw_bmp_data doesn't meet the size requirements, the behavior is undefined.
-     * Before calling this function, the API consumer should call bbmp_metacustomupdate on the associated bbmp_Image structure, in order to update
+     * Before calling this function, the API consumer should call bbmp_metaupdate on the associated bbmp_Image structure, in order to update
      * the fields that this function utilizies.
     */
     
@@ -356,7 +356,6 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     
     return raw_bmp_data;
 }
-
 
 bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool baseten) {
     /* 

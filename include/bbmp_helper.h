@@ -4,9 +4,10 @@
 
 /*
  * Macros for calculating the memory space (in bytes) necesseray for storing a BMP image represented by `img`, the bbmp_Image type
- * Before using this macro, make sure that the metadata representation is up to date by calling bbmp_metacustomupdate() on the bbmp_Image instance.
+ * Before using this macro, make sure that the metadata representation is up to date by calling bbmp_metaupdate() on the bbmp_Image instance.
 */
 #define bbmp_image_calc_bytesize(img) ((HEADER_BYTESIZE) + (BITMAPINFOHEADER_BYTESIZE) + (img)->metadata.pixelarray_size)
+
 /* 
  * Same as above but with raw dimensions and bits-per-pixel color depth
 */
@@ -29,7 +30,7 @@ struct bbmp_Image {
 bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location); 
 bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_height, uint16_t bpp, const bbmp_Pixel *fill, bbmp_Image *location); 
 bool bbmp_destroy_image(bbmp_Image *location);
-bool bbmp_metacustomupdate(bbmp_Image *meta);
+bool bbmp_metaupdate(bbmp_Image *meta);
 bool bbmp_enlarge_pixelarray(bbmp_Image *img, int32_t width, int32_t height, const bbmp_Pixel *fill); 
 uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data); 
 bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool baseten); 
