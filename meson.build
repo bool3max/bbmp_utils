@@ -1,4 +1,4 @@
-project('bbmp_utils', version: '0.1.0', 'c', license: 'MIT', default_options : ['c_std=c11'])
+project('bbmp_utils', 'c', license: 'MIT', version: '0.1.1', default_options : ['c_std=c11']) 
 add_global_arguments('-Wno-unused', language: 'c')
 
 ccompiler = meson.get_compiler('c')
