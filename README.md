@@ -2,14 +2,15 @@
 
 `bbmp_utils` is a native library for working with BMP files.
 
-It is written in POSIX C11 and its only dependency it the C stdlib. It has only been tested on `amd64`, linux 5.1 and gcc 9.0, though I see no reason why it shouldn't work on other architectures and/or POSIX systems (cross-compilation isn't yet supported by the build system but host-compilation should work).
+It is written in POSIX C11 and its only dependency it the C stdlib. It has only been tested on `amd64`, `linux 5.1` and `gcc 9.0`, though I see no reason why it shouldn't work on other architectures and/or POSIX systems (cross-compilation isn't yet supported by the build system but host-compilation should work).
 
 ---
 
-Right now it includes:
+As of now it includes:
 
 * functionality for parsing metadata out of and writing it to BMP files
 * a helper API for working with raw BMP image data
+* userspace functions for editing raw bitmaps (e.g. a `rot90` function for rotating a pixelarray by 90 degrees in either direction)
 
 ---
 
@@ -44,8 +45,6 @@ Note that on linux, standard practice is to never install libraries w/ debugging
 **TODO**: 
 
 * [ ] document the library API
-* [ ] standardize return types for many API functions: as of right now most return booleans
-* [ ] support for DIB headers other than `BITMAPINFOHEADER` (`"BM"`)
 * [ ] modularize the errors and error logging using `butil`
 * [x] ~~optimize the helper (internal representations of image data are horrendeously inefficient and memory hungry -- fix that)~~
 * [x] ~~extend the parser with funtionality for easily modifying metadata of existing BMP files~~
