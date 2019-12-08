@@ -8,6 +8,9 @@
 #include "bbmp_parser.h"
 #include "bbmp_helper.h"
 
+#define BBMP_PIXFORMAT_DEC "\e[1m[[  \e[0m\e[31mR\e[0m:%3hhu - \e[32mG\e[0m:%3hhu - \e[34mB\e[0m:%3hhu\e[1m  ]]\e[0m "
+#define BBMP_PIXFORMAT_HEX "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m "
+
 typedef uint8_t *bbmp_PixelArray_Raw;
 
 inline static bbmp_PixelArray_Raw bbmp_get_pixelarray_raw(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata, void *dest);
@@ -57,10 +60,10 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location) {
 
 bbmp_Image *bbmp_create_image(int32_t pixelarray_width, int32_t pixelarray_height, uint16_t bpp, const bbmp_Pixel *fill, bbmp_Image *location) {
     /*
-     * Create a "canvas" or a blank instance of a BMP image and save it to *location, which must be a valid pointer to a bbmp_Image structure.
+     * Create a blank instance of a BMP image and save it to *location, which must be a valid pointer to a bbmp_Image structure.
      * The instance is created using basic parameters passed as parameters: pixelarray_width, pixelarray_height, bpp (color depth). 
      * The bbmp_Metadata structure and all of its members are calculated based off of these basic parameters. 
-     * If "fill" is not a null pointer, the canvas is filled with pixels based off of this reference pixel. Otherwise, the pixelarray memory is left uninitialized.
+     * If "fill" is not a null pointer, the image is filled with pixels based off of this reference pixel. Otherwise, the pixelarray memory is left uninitialized.
      * (it is *allocated*, but is left uninitialized)
     */
 
@@ -357,6 +360,11 @@ uint8_t *bbmp_write_image(const bbmp_Image *location, uint8_t *raw_bmp_data) {
     return raw_bmp_data;
 }
 
+void bbmp_debug_pixel(const bbmp_Pixel *pixel) {
+    // print a decimal representation of a pixel and its colors to stdout
+    fprintf(stdout, BBMP_PIXFORMAT_DEC, pixel->r, pixel->g, pixel->b);
+}
+
 bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool baseten) {
     /* 
      * Print RBG values to "stream" for each pixel in the parsed pixel array pointed to by "pixarray". 
@@ -368,9 +376,9 @@ bool bbmp_debug_pixelarray(FILE *stream, const bbmp_Image *location, bool basete
     const char *format;
 
     if (baseten) {
-        format = "\e[1m[[  \e[0m\e[31mR\e[0m:%3hhu - \e[32mG\e[0m:%3hhu - \e[34mB\e[0m:%3hhu\e[1m  ]]\e[0m ";
+        format = BBMP_PIXFORMAT_DEC;
     } else {
-        format = "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m ";
+        format = BBMP_PIXFORMAT_HEX;
     }
 
     // pointer arithmetic based indexing
