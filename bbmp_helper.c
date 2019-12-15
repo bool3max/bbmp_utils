@@ -139,7 +139,7 @@ bool bbmp_destroy_image(bbmp_Image *location) {
 static bbmp_PixelArray bbmp_get_pixelarray(uint8_t *raw_bmp_data, const struct bbmp_Metadata *metadata) {
     /* 
      * Parse raw BMP data pointed to by "raw_bmp_data" and return a 2D array of bbmp_Pixel structs.
-     * The array's 'dimensions' are equal to [metadata.pixelarray_height]*[metadata->pixelarray_width];
+     * The array's 'dimensions' are equal to [metadata->pixelarray_height]*[metadata->pixelarray_width];
      * The memory allocated by this function must be freed manually, although this is usually done by the API consumer using
      * bbmp_destroy_image on a bbmp_Image struct.
     */
