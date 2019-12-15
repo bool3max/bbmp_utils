@@ -16,8 +16,7 @@ bbmp_Image *bbmp_rot90(bbmp_Image *image, const enum clock_dir direction) {
             // in-place transposition
             for(size_t n = 0; n <= r - 2; n++) {
                 for(size_t m = n + 1; m <= r - 1; m++) {
-                    bbmp_Pixel temp;
-                    temp = image->pixelarray[n][m];
+                    bbmp_Pixel temp = image->pixelarray[n][m];
                     
                     image->pixelarray[n][m] = image->pixelarray[m][n];
                     image->pixelarray[m][n] = temp;
