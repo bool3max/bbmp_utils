@@ -10,42 +10,41 @@ bbmp_Image *bbmp_rot90(bbmp_Image *image, const enum clock_dir direction) {
     */
 
     if (image->metadata.pixelarray_width != image->metadata.pixelarray_height) return NULL;
-
-    const size_t row_bytecount = image->metadata.pixelarray_width * sizeof(bbmp_Pixel); // bytes required per one pixelarray row
+    const size_t r = image->metadata.pixelarray_width;
 
     if (direction == CW) {
-        // NOTE: always temp backup the NEXT operating row
-        // this could be further optimized by only backing up the pixels necessary for the next operation, but I'm going the
-        // lazy route for now
-
-        size_t r_col_index = 0;
-
-        bbmp_Pixel *source_row = malloc(image->metadata.pixelarray_width * sizeof(bbmp_Pixel)); 
-        if(!source_row) {
-            perror("bbmp_helper: Failed allocating memory\n");
-            return NULL;
-        }
-        
-        memcpy(source_row, *(image->pixelarray), row_bytecount); // at start, point to a copy of the first row of pixels
-
-        for(size_t row_index = 0; row_index < image->metadata.pixelarray_height; row_index++) {
-            // per-row
-            size_t r_row_index = image->metadata.pixelarray_height - 1;
-            
-            for(size_t col_index = 0; col_index < image->metadata.pixelarray_width; col_index++) {
-                // per-pixel
-                image->pixelarray[r_row_index][r_col_index] = source_row[col_index];
-
-                r_row_index--;
-                memcpy(source_row, *(image->pixelarray + row_index), row_bytecount);
+            // in-place transposition
+            for(size_t n = 0; n <= r - 2; n++) {
+                for(size_t m = n + 1; m <= r - 1; m++) {
+                    bbmp_Pixel temp;
+                    temp = image->pixelarray[n][m];
+                    
+                    image->pixelarray[n][m] = image->pixelarray[m][n];
+                    image->pixelarray[m][n] = temp;
+                }
             }
 
-            r_col_index++;
-        }
+            // reverse the columns to achieve clockwise rotation
+            
+            for(size_t i_col = 0; i_col < r; i_col++) {
+                size_t r_s = 0,
+                       r_e = r - 1;
 
-        free(source_row);
+                do {
+                    bbmp_Pixel temp = image->pixelarray[r_s][i_col];
+
+                    image->pixelarray[r_s][i_col] = image->pixelarray[r_e][i_col];
+                    image->pixelarray[r_e][i_col] = temp;
+
+                    r_s++; 
+                    r_e--;
+                } while (r_s != (r / 2));
+            }
     } else if (direction == CCW) {
-        // not implemented yet
+
+
+
+        // reverse the rows to achieve counter-clockwise rotation
         return NULL;
     } else return NULL;
 
