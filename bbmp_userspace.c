@@ -3,6 +3,31 @@
 #include <string.h>
 #include <stdlib.h>
 
+
+bbmp_Image *bbmp_grayscale(bbmp_Image *image) {
+    /*
+     * Convert the entire pixelarray to a grayscale version
+     *
+    */
+
+    if(!image) return NULL;
+
+    for(size_t n = 0; n < image->metadata.pixelarray_height; n++) {
+        for(size_t m = 0; m < image->metadata.pixelarray_width; m++) {
+            const bbmp_Pixel curpix = image->pixelarray[n][m];
+            double full = (double) curpix.r * 0.299 + (double) curpix.g * 0.587 + (double) curpix.b * 0.114;
+
+            image->pixelarray[n][m] = (bbmp_Pixel) {
+                .r = full,
+                .g = full,
+                .b = full
+            };
+        }
+    }
+
+    return image;
+}
+
 bbmp_Image *bbmp_rot90(bbmp_Image *image, const enum clock_dir direction) {
     /* 
      * Rotate the pixelarray of the bbmp_Image pointed to by image by 90 degrees clockwise or counter-clockwise.
