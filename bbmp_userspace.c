@@ -7,7 +7,7 @@
 bbmp_Image *bbmp_grayscale(bbmp_Image *image) {
     /*
      * Convert the entire pixelarray to a grayscale version
-     *
+     * Returns NULL on failure or the pointer to the bbmp_Image on success.
     */
 
     if(!image) return NULL;
@@ -15,7 +15,7 @@ bbmp_Image *bbmp_grayscale(bbmp_Image *image) {
     for(size_t n = 0; n < image->metadata.pixelarray_height; n++) {
         for(size_t m = 0; m < image->metadata.pixelarray_width; m++) {
             const bbmp_Pixel curpix = image->pixelarray[n][m];
-            double full = (double) curpix.r * 0.299 + (double) curpix.g * 0.587 + (double) curpix.b * 0.114;
+            uint8_t full = (double) curpix.r * 0.299 + (double) curpix.g * 0.587 + (double) curpix.b * 0.114;
 
             image->pixelarray[n][m] = (bbmp_Pixel) {
                 .r = full,
@@ -23,6 +23,24 @@ bbmp_Image *bbmp_grayscale(bbmp_Image *image) {
                 .b = full
             };
         }
+    }
+
+    return image;
+}
+
+bbmp_Image *bbmp_vertflip(bbmp_Image *image) {
+    if(!image) return NULL;
+
+    bbmp_Pixel **start = image->pixelarray,
+               **end   = image->pixelarray + image->metadata.pixelarray_height - 1;
+
+    while(start != image->pixelarray + (image->metadata.pixelarray_height / 2)) {
+        bbmp_Pixel *t = *start;
+        *start = *end;
+        *end = t;
+
+        start++;
+        end--;
     }
 
     return image;

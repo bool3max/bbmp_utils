@@ -41,3 +41,4 @@ void bbmp_debug_pixel(const bbmp_Pixel *pixel);
 // userpace functions (prototypes still in this file for ease of use)
 bbmp_Image *bbmp_rot90(bbmp_Image *image, const enum clock_dir direction); 
 bbmp_Image *bbmp_grayscale(bbmp_Image *image); 
+bbmp_Image *bbmp_vertflip(bbmp_Image *image); 
