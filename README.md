@@ -11,6 +11,7 @@ As of now it includes:
 * functionality for parsing metadata out of and writing it to BMP files
 * a helper API for working with raw BMP image data
 * userspace functions for editing raw bitmaps (e.g. a `rot90` function for rotating a pixelarray by 90 degrees in either direction)
+* optional python3 extension module for interacting with the library from within python
 
 ---
 
@@ -20,10 +21,9 @@ Development is done using `meson` with the `ninja` backend.
 
 1. Run `$ meson setup build_dbg -Dbuildtype=debug` (replace `debug` with `release` if you wish to build a release build w/o debugging symbols and w/ optimizations)
 2. Run `$ ninja -C build_dbg` to build the project
-3. Run `# ninja -C build_dbg install` to install the static library and the header files in the default location.
+3. Run `# ninja -C build_dbg install` to install the library and the header files in the default location.
 
-If you also wish to build the sample application used for the library and the API, also pass `-Dgen_test=true` to the initial `meson setup ...` command, or run `$ meson configure build_dbg -Dgen_test=true && ninja -C build_dbg` if you've already run the setup.
-The test application is not guaranteed to do anything meaningful and is not to be used as an actual test environment.
+If you wish to *not* build the python extension module, pass `-Dgen_py_bindings=false` to the initial `meson setup` command.
 
 ### `ali.fish`
 
