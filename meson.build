@@ -15,6 +15,9 @@ if get_option('gen_py_bindings')
 
   py = import('python') # meson python module
   py_ins = py.find_installation('python3') # python3 installation object
+  if not py_ins.found()
+    error('No python3 installation found on host')
+  endif
 
   extension = py_ins.extension_module(meson.project_name(), 
                      'py3_bindings/module.c',
