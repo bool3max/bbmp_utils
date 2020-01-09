@@ -8,8 +8,8 @@
 #include "bbmp_parser.h"
 #include "bbmp_helper.h"
 
-#define BBMP_PIXFORMAT_DEC "\e[1m[[  \e[0m\e[31mR\e[0m:%3hhu - \e[32mG\e[0m:%3hhu - \e[34mB\e[0m:%3hhu\e[1m  ]]\e[0m "
-#define BBMP_PIXFORMAT_HEX "\e[1m[[  \e[0m\e[31mR\e[0m:%.2hhX - \e[32mG\e[0m:%.2hhX - \e[34mB\e[0m:%.2hhX\e[1m  ]]\e[0m "
+#define BBMP_PIXFORMAT_DEC "\033[1m[[  \033[0m\033[31mR\033[0m:%3hhu - \033[32mG\033[0m:%3hhu - \033[34mB\033[0m:%3hhu\033[1m  ]]\033[0m "
+#define BBMP_PIXFORMAT_HEX "\033[1m[[  \033[0m\033[31mR\033[0m:%.2hhX - \033[32mG\033[0m:%.2hhX - \033[34mB\033[0m:%.2hhX\033[1m  ]]\033[0m "
 
 typedef uint8_t *bbmp_PixelArray_Raw;
 
