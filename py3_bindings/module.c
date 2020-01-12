@@ -19,7 +19,6 @@ static PyObject *e_parse_metadata(PyObject *self, PyObject *args) {
     bbmp_Metadata meta = {0};
 
     bbmp_parse_bmp_metadata(buf.buf, &meta);
-    bbmp_debug_bmp_metadata(&meta);
 
     PyBuffer_Release(&buf);
 
