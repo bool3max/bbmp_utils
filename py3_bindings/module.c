@@ -4,28 +4,6 @@
 #include "bbmp_helper.h"
 #include "bbmp_parser.h"
 
-/* static PyObject *func_createimage(PyObject *self, PyObject *args, PyObject *kwargs) */
-/* { */
-/*     // arbitrary call */
-/*     bbmp_vertflip(NULL); */
-
-/*     static char *kw_options[] = {"resolution", "width", "height", "name", NULL}; */
-
-/*     const char *name; */
-/*     int res, wid, hei; */
-
-/*     if(!PyArg_ParseTupleAndKeywords(args, kwargs, "iiis", kw_options, &res, &wid, &hei, &name)) { */
-/*         // cannot parse tuple -- the function raises an appropriate python exception and therefore returns 0, which we catch here */
-/*         fprintf(stderr, "lib: failed parsing tuple...\n"); */
-/*         // return a NULL pointer indicating failure */
-/*         return NULL; */
-/*     } */
-    
-/*     fprintf(stdout, "lib: got: resolution: %d\n\twidth: %d\n\theight: %d\n\tname: %s\n", res, wid, hei, name); */
-
-/*     return PyLong_FromLong(33); // PyLong_FromLong returns a pointer to an instance of a python integer object */
-/* } */
-
 static PyObject *e_parse_metadata(PyObject *self, PyObject *args) {
     /* Taking a form of a python byte object as an argument, read it, parse its metadata using bbmp_utils' bbmp_parse_bmp_metadata function and return
      * a python dictionary representing the bbmp_Metadata structure
