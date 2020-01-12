@@ -51,7 +51,7 @@ bool bbmp_get_image(uint8_t *raw_bmp_data, bbmp_Image *location) {
     */
 
     // parse the metadata and save it to the struct
-    if (!bbmp_parse_bmp_metadata(raw_bmp_data, &(location->metadata) )) return false;
+    bbmp_parse_bmp_metadata(raw_bmp_data, &(location->metadata));
 
     if ((location->pixelarray = bbmp_get_pixelarray(raw_bmp_data, &(location->metadata))) == NULL) return false;
 

@@ -58,5 +58,5 @@ enum BSP_OFFSET {
     BSP_OFF_DIB_IMPORTANTCOLORSNUM = 0x32
 };
 
-bool bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, bbmp_Metadata *location); 
+void bbmp_parse_bmp_metadata(unsigned char *raw_bmp_data, bbmp_Metadata *location); 
 void bbmp_debug_bmp_metadata(const bbmp_Metadata *dbgtemp); 
