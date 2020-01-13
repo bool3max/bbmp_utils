@@ -75,7 +75,6 @@ static PyObject *e_parse_metadata(PyObject *self, PyObject *args) {
 
 // method table (describe all the methods exposed by this particular extension module)
 static PyMethodDef module_methods[] = {
-    /* {"create_image", (PyCFunction) func_createimage, METH_VARARGS | METH_KEYWORDS, "test"}, */ 
     {"parse_metadata", (PyCFunction) e_parse_metadata, METH_VARARGS, "Parse the metadata out of a BMP file"},
     {NULL, NULL, 0, NULL} // sentinel
 };
