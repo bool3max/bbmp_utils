@@ -4,6 +4,8 @@
 #include "bbmp_helper.h"
 #include "bbmp_parser.h"
 
+// TODO: find a way to construct a native python class here with its own methods etc.
+
 static PyObject *e_parse_metadata(PyObject *self, PyObject *args) {
     /* Taking a form of a python byte object as an argument, read it, parse its metadata using bbmp_utils' bbmp_parse_bmp_metadata function and return
      * a python dictionary representing the bbmp_Metadata structure
@@ -68,14 +70,13 @@ static PyObject *e_parse_metadata(PyObject *self, PyObject *args) {
                                     meta.padding,
                                     "pixelarray_size_np",
                                     meta.pixelarray_size_np);
-    if(!dict) return NULL; // interpreter raises an exception, we return NULL
-
-    return dict;
+    return dict; // NULL if building failed
 }
+
 
 // method table (describe all the methods exposed by this particular extension module)
 static PyMethodDef module_methods[] = {
-    {"parse_metadata", (PyCFunction) e_parse_metadata, METH_VARARGS, "Parse the metadata out of a BMP file"},
+    {"parse_metadata", e_parse_metadata, METH_VARARGS, "Parse the metadata out of a BMP file"},
     {NULL, NULL, 0, NULL} // sentinel
 };
 
